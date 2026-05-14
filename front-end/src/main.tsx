@@ -6,7 +6,7 @@ import App from '@/App.tsx'
 import Landing from '@/pages/Landing';
 import Login  from '@/pages/Login';
 import Signup from '@/pages/Signup';
-import Dashboard from '@/components/Dashboard';
+import Dashboard from '@/components/dashboard/Dashboard';
 
 const router = createBrowserRouter([
     {
