@@ -8,10 +8,16 @@ const server = createServer(app);
 initSocket(server);
 
 async function bootstrap() {
-  await connectDB();
-
   server.listen(env.PORT, () => {
     console.log(`Pollinkr API running on port ${env.PORT}`);
+    console.log(`Environment: ${env.NODE_ENV}`);
+    console.log(`Client origin: ${env.CLIENT_ORIGIN}`);
+    console.log(`MongoDB URI configured: ${env.MONGODB_URI ? "yes" : "no"}`);
+  });
+
+  connectDB().catch((error: unknown) => {
+    console.error("MongoDB connection failed. Check MONGODB_URI and Atlas network access.");
+    console.error(error);
   });
 }
 
