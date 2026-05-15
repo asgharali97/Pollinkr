@@ -13,12 +13,17 @@ const envSchema = z.object({
     .default(
       "mongodb://pollinkr:pollinkr_dev_password@localhost:27017/pollinkr?authSource=admin"
     ),
-  JWT_ACCESS_SECRET: z.string().min(32).default("fd5d1959-4674-4b23-b24b-4588e4a53065"),
-  JWT_ACCESS_EXPIRES_IN: z.string().min(1).default("7d"),
+  JWT_ACCESS_SECRET: z.string().min(32).default("dev_fd5d1959-4674-4b23-b24b-4588e4a53065"),
+  JWT_ACCESS_EXPIRES_IN: z.string().min(1).default("15m"),
+  JWT_REFRESH_SECRET: z
+    .string()
+    .min(32)
+    .default("dev_d4850236-eaf3-4094-a43c-29a1c4d5a700"),
+  JWT_REFRESH_EXPIRES_IN: z.string().min(1).default("7d"),
   FINGERPRINT_SECRET: z
     .string()
     .min(32)
-    .default("bb345277-30fc-4811-8382-1f3277f4a97f"),
+    .default("dev_bb345277-30fc-4811-8382-1f3277f4a97f"),
 });
 
 const parsedEnv = envSchema.safeParse(process.env);

@@ -4,6 +4,7 @@ export interface IUser {
   name: string;
   email: string;
   passwordHash: string;
+  refreshTokenHash: string | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -32,6 +33,11 @@ const userSchema = new Schema<IUser, UserModel>(
     passwordHash: {
       type: String,
       required: true,
+      select: false,
+    },
+    refreshTokenHash: {
+      type: String,
+      default: null,
       select: false,
     },
   },
