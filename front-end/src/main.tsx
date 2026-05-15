@@ -6,7 +6,9 @@ import App from '@/App.tsx'
 import Landing from '@/pages/Landing';
 import Login  from '@/pages/Login';
 import Signup from '@/pages/Signup';
-import Dashboard from '@/components/dashboard/Dashboard';
+import Dashboard from '@/pages/Dashboard';
+import CreatePoll from '@/pages/CreatePoll';
+import PollResponse from '@/pages/PollResponse';
 
 const router = createBrowserRouter([
     {
@@ -25,9 +27,17 @@ const router = createBrowserRouter([
           path:"/signup",
           element: <Signup/>
         },
-         {
+        {
           path:"/dashboard",
           element: <Dashboard/>
+        },
+        {
+          path:"/polls/create",
+          element: <CreatePoll/>
+        },
+        {
+          path:"/polls",
+          element: <PollResponse/>
         },
       ]
     }
