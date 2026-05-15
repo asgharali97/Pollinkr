@@ -1,9 +1,10 @@
-import React from 'react'
 import PollResponseComponent from '@/components/Poll/PollResponse'
 const PollResponse = () => {
   return (
     <>
+    <div className="min-h-screen">
       <PollResponseComponent />
+    </div>
     </>
   )
 }

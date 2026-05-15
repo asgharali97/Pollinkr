@@ -1,13 +1,31 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import { IconEye, IconEyeOff } from "@tabler/icons-react";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { toast } from "sonner";
+import api from "@/lib/api";
+import { useAuthStore } from "@/store/auth.store";
 
 const Signup = () => {
-    const [show, setShow] = useState(false);
+    const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
+    const setAuth = useAuthStore((s) => s.setAuth);
+    const [name, setName] = useState("");
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [submitting, setSubmitting] = useState(false);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        // wire up later
+        setSubmitting(true);
+        try {
+            const response = await api.post("/auth/register", { name, email, password });
+            setAuth(response.data.data.user, "cookie-session");
+            toast.success("Account created");
+            navigate(searchParams.get("returnTo") || "/dashboard");
+        } catch (error: any) {
+            toast.error(error.response?.data?.message || "Signup failed");
+        } finally {
+            setSubmitting(false);
+        }
     };
 
     return (
@@ -30,18 +48,18 @@ const Signup = () => {
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div className="space-y-2 flex flex-col">
                         <label className="text-md font-normal">Full Name</label>
-                        <input type="text" placeholder="John Doe" className="border py-2 px-4 rounded-xl shadow-s outline-none" />
+                        <input value={name} onChange={(e) => setName(e.target.value)} type="text" required placeholder="John Doe" className="border py-2 px-4 rounded-xl shadow-s outline-none" />
                     </div>
                     <div className="space-y-2 flex flex-col">
                         <label className="text-md font-normal">Email</label>
-                        <input type="email" placeholder="jhondoe@gmail.com" className="border py-2 px-4 rounded-xl shadow-s outline-none" />
+                        <input value={email} onChange={(e) => setEmail(e.target.value)} type="email" required placeholder="jhondoe@gmail.com" className="border py-2 px-4 rounded-xl shadow-s outline-none" />
                     </div>
                     <div className="space-y-2 flex flex-col">
                         <label className="text-md font-normal">Password</label>
-                        <input type="password" placeholder="*******" className="border py-2 px-4 rounded-xl shadow-s outline-none " />
+                        <input value={password} onChange={(e) => setPassword(e.target.value)} type="password" required placeholder="*******" className="border py-2 px-4 rounded-xl shadow-s outline-none " />
                     </div>
                     <div className="flex justify-center w-full mt-6">
-                    <button type="submit" className="py-2 px-4 rounded-xl cursor-pointer bg-primary/90 shadow-l text-white">Create account</button>
+                    <button disabled={submitting} type="submit" className="py-2 px-4 rounded-xl cursor-pointer bg-primary/90 shadow-l text-white disabled:opacity-60">{submitting ? "Creating..." : "Create account"}</button>
                     </div>
                 </form>
 

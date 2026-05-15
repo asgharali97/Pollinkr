@@ -1,9 +1,10 @@
-import React from 'react'
 import PublishedResultsComponent from '@/components/Poll/PublishedResults'
 const PublishedResults = () => {
   return (
     <>
+    <div className="min-h-screen">
       <PublishedResultsComponent/>
+    </div>
     </>
   )
 }

@@ -1,4 +1,3 @@
-import React from "react";
 import { IconArrowRight } from "@tabler/icons-react";
 import { Link } from "react-router-dom";
 import PollPreview from "./PollPreview";

@@ -1,75 +1,71 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { IconClock, IconLock, IconCircleCheck, IconAlertCircle } from "@tabler/icons-react";
 import { useAuthStore } from "@/store/auth.store";
 import { AuthLoginDialog } from "@/components/AuthLoginDialog";
 import { Button } from "@/components/ui/button";
-
-// --- Mock data, replace with API call during wiring ---
-const MOCK_POLL = {
-  id: "1",
-  title: "Q3 Product Feedback — Feature Prioritization",
-  description:
-    "Help us understand what matters most to you. This takes under 2 minutes.",
-  anonymous: false,
-  status: "active" as PollStatus,
-  expiresAt: "2025-08-20T23:59:00Z",
-  creator: "Alex Johnson",
-  questions: [
-    {
-      id: "q1",
-      text: "Which feature would have the biggest impact on your workflow?",
-      mandatory: true,
-      options: [
-        { id: "o1", text: "Bulk export to CSV" },
-        { id: "o2", text: "API access" },
-        { id: "o3", text: "Team collaboration tools" },
-        { id: "o4", text: "Mobile app" },
-      ],
-    },
-    {
-      id: "q2",
-      text: "How often do you currently use the product?",
-      mandatory: true,
-      options: [
-        { id: "o5", text: "Daily" },
-        { id: "o6", text: "A few times a week" },
-        { id: "o7", text: "Once a week" },
-        { id: "o8", text: "Rarely" },
-      ],
-    },
-    {
-      id: "q3",
-      text: "What is your primary use case?",
-      mandatory: false,
-      options: [
-        { id: "o9", text: "Internal team feedback" },
-        { id: "o10", text: "Customer research" },
-        { id: "o11", text: "Event planning" },
-        { id: "o12", text: "Other" },
-      ],
-    },
-  ],
-};
+import api from "@/lib/api";
+import { toast } from "sonner";
 
 type PollStatus = "active" | "expired" | "published";
+type PublicPoll = {
+  id: string;
+  shareId: string;
+  title: string;
+  description?: string;
+  anonymous: boolean;
+  status: PollStatus | "draft";
+  expiresAt: string;
+  questions: {
+    id: string;
+    text: string;
+    mandatory: boolean;
+    options: { id: string; text: string }[];
+  }[];
+};
 type Answers = Record<string, string>;
 type PageState = "form" | "submitted";
 
 export default function PollResponse() {
   const { shareId } = useParams();
-  const poll = MOCK_POLL; // replace with usePoll(shareId) hook during wiring
-  const token = useAuthStore((s) => s.token);
-  const requiresAuth = !poll.anonymous;
+  const user = useAuthStore((s) => s.user);
 
+  const [poll, setPoll] = useState<PublicPoll | null>(null);
+  const [mode, setMode] = useState<string>("response");
   const [answers, setAnswers] = useState<Answers>({});
   const [pageState, setPageState] = useState<PageState>("form");
   const [submitting, setSubmitting] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
 
+  useEffect(() => {
+    const fetchPoll = async () => {
+      try {
+        const response = await api.get(`/public/polls/${shareId}`);
+        setMode(response.data.data.mode);
+        setPoll(response.data.data.poll);
+      } catch (error: any) {
+        toast.error(error.response?.data?.message || "Could not load poll");
+      }
+    };
+
+    fetchPoll();
+  }, [shareId]);
+
+  if (!poll) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center text-sm text-muted-foreground">
+        Loading poll...
+      </div>
+    );
+  }
+
+  const requiresAuth = !poll.anonymous;
+
+  if (mode === "closed") return <PollClosed />;
+  if (mode === "results") return <PollPublished shareId={poll.shareId} />;
   if (poll.status === "expired") return <PollClosed />;
-  if (poll.status === "published") return <PollPublished />;
-  if (requiresAuth && !token) return <AuthRequiredGate poll={poll} />;
+  if (poll.status === "published") return <PollPublished shareId={poll.shareId} />;
+  if (requiresAuth && !user) return <AuthRequiredGate poll={poll} />;
 
   const unansweredMandatory = poll.questions
     .filter((q) => q.mandatory && !answers[q.id])
@@ -86,9 +82,19 @@ export default function PollResponse() {
     }
     setValidationError(null);
     setSubmitting(true);
-    await new Promise((r) => setTimeout(r, 1000)); // replace with API call
-    setSubmitting(false);
-    setPageState("submitted");
+    try {
+      await api.post(`/public/polls/${shareId}/responses`, {
+        answers: Object.entries(answers).map(([questionId, optionId]) => ({
+          questionId,
+          optionId,
+        })),
+      });
+      setPageState("submitted");
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Could not submit response");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   if (pageState === "submitted") return <SubmittedState pollTitle={poll.title} />;
@@ -254,7 +260,7 @@ export default function PollResponse() {
   );
 }
 
-type GatePoll = Pick<typeof MOCK_POLL, "title" | "description" | "expiresAt">;
+type GatePoll = Pick<PublicPoll, "title" | "description" | "expiresAt">;
 
 function AuthRequiredGate({ poll }: { poll: GatePoll }) {
   return (
@@ -364,7 +370,7 @@ function PollClosed() {
   );
 }
 
-function PollPublished() {
+function PollPublished({ shareId }: { shareId: string }) {
   return (
     <div className="min-h-screen bg-background flex items-center justify-center px-6 font-sans">
       <div className="text-center max-w-sm">
@@ -378,7 +384,7 @@ function PollPublished() {
           This poll has been completed and results are now public.
         </p>
         <Link
-          to="results"
+          to={`/p/${shareId}/results`}
           className="px-5 py-2 rounded-lg bg-foreground text-background text-sm font-medium hover:opacity-90 transition-opacity"
         >
           View results

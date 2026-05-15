@@ -70,7 +70,7 @@ const router = createBrowserRouter([
 
       // Public
       { path: "p/:shareId", element: <PollResponse /> },
-      { path: "polls/:id/results", element: <PublishedResults /> },
+      { path: "p/:shareId/results", element: <PublishedResults /> },
 
       { path: "*", element: <NotFound /> },
     ],

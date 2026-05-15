@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { IconCheck } from "@tabler/icons-react";
 
 const PollPreview = () => {

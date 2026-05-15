@@ -1,6 +1,3 @@
-import React from "react";
-
-
 const STEPS = [
   { label: "Create your poll", sub: "Add questions, set options, configure rules." },
   { label: "Share the link", sub: "One URL. Send it anywhere — email, Slack, anywhere." },

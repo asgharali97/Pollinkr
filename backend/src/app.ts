@@ -9,7 +9,7 @@ export const app = express();
 
 app.use(
   cors({
-    origin: env.CLIENT_ORIGIN,
+    origin: env.NODE_ENV === "production" ? env.CLIENT_ORIGIN : true,
     credentials: true,
   })
 );

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Sidebar from "./Sidebar";
 import {
@@ -13,6 +13,9 @@ import {
   IconClipboardCheck,
   IconSearch,
 } from "@tabler/icons-react";
+import { toast } from "sonner";
+import api from "@/lib/api";
+import { useAuthStore } from "@/store/auth.store";
 
 type PollStatus = "draft" | "active" | "expired" | "published";
 
@@ -25,50 +28,8 @@ interface Poll {
   expiresAt: string | null;
   createdAt: string;
   isAnonymous: boolean;
+  shareId: string;
 }
-
-const MOCK_POLLS: Poll[] = [
-  {
-    id: "1",
-    title: "Q3 Product Feedback — Feature Prioritization",
-    status: "active",
-    responseCount: 142,
-    questionCount: 6,
-    expiresAt: "2025-08-20T23:59:00Z",
-    createdAt: "2025-07-01T10:00:00Z",
-    isAnonymous: true,
-  },
-  {
-    id: "2",
-    title: "Team Retrospective — Sprint 24",
-    status: "published",
-    responseCount: 18,
-    questionCount: 4,
-    expiresAt: "2025-07-10T23:59:00Z",
-    createdAt: "2025-07-05T09:00:00Z",
-    isAnonymous: false,
-  },
-  {
-    id: "3",
-    title: "New Onboarding Flow — Usability Check",
-    status: "expired",
-    responseCount: 53,
-    questionCount: 8,
-    expiresAt: "2025-07-12T23:59:00Z",
-    createdAt: "2025-07-06T14:00:00Z",
-    isAnonymous: true,
-  },
-  {
-    id: "4",
-    title: "Company All-Hands Topics",
-    status: "draft",
-    responseCount: 0,
-    questionCount: 3,
-    expiresAt: null,
-    createdAt: "2025-07-14T11:00:00Z",
-    isAnonymous: false,
-  },
-];
 
 const STATUS_CONFIG: Record<PollStatus, { label: string; className: string }> = {
   draft: {
@@ -100,10 +61,27 @@ const TABS: { key: FilterTab; label: string }[] = [
 ];
 
 export default function Dashboard() {
-  const [polls] = useState<Poll[]>(MOCK_POLLS);
+  const user = useAuthStore((s) => s.user);
+  const [polls, setPolls] = useState<Poll[]>([]);
+  const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<FilterTab>("all");
   const [search, setSearch] = useState("");
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchPolls = async () => {
+      try {
+        const response = await api.get("/polls");
+        setPolls(response.data.data.polls);
+      } catch (error: any) {
+        toast.error(error.response?.data?.message || "Could not load polls");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPolls();
+  }, []);
 
   const filtered = polls.filter((p) => {
     const matchesTab = filter === "all" || p.status === filter;
@@ -131,7 +109,7 @@ export default function Dashboard() {
                   Dashboard
                 </p>
                 <h1 className="text-2xl font-semibold tracking-tight">
-                  Good morning, Alex.
+                  Good morning, {user?.name?.split(" ")[0] || "there"}.
                 </h1>
               </div>
               <button
@@ -192,7 +170,11 @@ export default function Dashboard() {
               </div>
             </div>
 
-            {filtered.length === 0 ? (
+            {loading ? (
+              <div className="py-20 text-center text-sm text-muted-foreground">
+                Loading polls...
+              </div>
+            ) : filtered.length === 0 ? (
               <EmptyState hasPolls={polls.length > 0} />
             ) : (
               <div className="flex flex-col gap-2">
@@ -262,7 +244,8 @@ function PollRow({ poll, index }: { poll: Poll; index: number }) {
             icon={<IconShare2 size={14} />}
             label="Share"
             onClick={() => {
-              navigator.clipboard.writeText(`${window.location.origin}/p/${poll.id}`);
+              navigator.clipboard.writeText(`${window.location.origin}/p/${poll.shareId}`);
+              toast.success("Share link copied");
             }}
           />
         )}

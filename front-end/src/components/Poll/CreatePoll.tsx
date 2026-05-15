@@ -13,7 +13,6 @@ import {
   SortableContext,
   verticalListSortingStrategy,
   useSortable,
-  arrayMove,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import {
@@ -28,9 +27,6 @@ import {
   IconChevronDown
 } from "@tabler/icons-react";
 import { format } from "date-fns";
-import { Calendar as CalendarIcon } from "lucide-react";
-
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -39,6 +35,8 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { useState } from "react";
+import { toast } from "sonner";
+import api from "@/lib/api";
 
 const optionSchema = z.object({
   text: z.string().min(1, "Option can't be empty"),
@@ -76,7 +74,6 @@ export default function CreatePoll() {
     register,
     control,
     handleSubmit,
-    watch,
     formState: { errors },
   } = useForm<PollForm>({
     resolver: zodResolver(pollSchema),
@@ -109,12 +106,28 @@ export default function CreatePoll() {
     move(oldIndex, newIndex);
   };
 
-  const onSubmit = (data: PollForm, mode: "draft" | "publish") => {
-    console.log(mode, data);
-    // wire up to API later
-  };
+  const onSubmit = async (data: PollForm, mode: "draft" | "publish") => {
+    try {
+      const expiresAt = date ? endOfSelectedDay(date).toISOString() : null;
+      const response = await api.post("/polls", {
+        title: data.title,
+        description: data.description,
+        anonymous: data.anonymous,
+        mode,
+        expiresAt,
+        questions: data.questions.map((question) => ({
+          text: question.text,
+          mandatory: question.mandatory,
+          options: question.options.map((option) => ({ text: option.text })),
+        })),
+      });
 
-  const anonymous = watch("anonymous");
+      toast.success(mode === "publish" ? "Poll published" : "Poll saved as draft");
+      navigate(`/polls/${response.data.data.id}/analytics`);
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Could not save poll");
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background text-foreground font-sans">
@@ -296,6 +309,12 @@ export default function CreatePoll() {
       </div>
     </div>
   );
+}
+
+function endOfSelectedDay(value: Date) {
+  const date = new Date(value);
+  date.setHours(23, 59, 59, 999);
+  return date;
 }
 
 function SortableQuestion({

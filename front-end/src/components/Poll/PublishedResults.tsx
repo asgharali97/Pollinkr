@@ -1,69 +1,67 @@
-import { useParams, Link } from "react-router-dom";
-import { IconChartBar, IconUsers, IconClock, IconLock } from "@tabler/icons-react";
+import { useEffect, useState } from "react";
+import { Link, useParams } from "react-router-dom";
+import { IconChartBar, IconClock, IconLock, IconUsers } from "@tabler/icons-react";
+import { toast } from "sonner";
 import { EvilBarChart } from "@/components/evilcharts/charts/bar-chart";
 import { EvilPieChart } from "@/components/evilcharts/charts/pie-chart";
 import { type ChartConfig } from "@/components/evilcharts/ui/chart";
+import api from "@/lib/api";
 
-const MOCK_RESULTS = {
+type ResultsData = {
   poll: {
-    title: "Q3 Product Feedback — Feature Prioritization",
-    description: "Help us understand what matters most to you.",
-    publishedAt: "2025-07-15T10:00:00Z",
-    totalResponses: 142,
-    isAnonymous: true,
-    creator: "Alex Johnson",
-  },
-  questions: [
-    {
-      id: "q1",
-      text: "Which feature would have the biggest impact on your workflow?",
-      mandatory: true,
-      totalAnswers: 142,
-      options: [
-        { key: "export", label: "Bulk export to CSV", count: 48 },
-        { key: "api", label: "API access", count: 39 },
-        { key: "collab", label: "Team collaboration", count: 33 },
-        { key: "mobile", label: "Mobile app", count: 22 },
-      ],
-    },
-    {
-      id: "q2",
-      text: "How often do you currently use the product?",
-      mandatory: true,
-      totalAnswers: 142,
-      options: [
-        { key: "daily", label: "Daily", count: 61 },
-        { key: "weekly", label: "Few times a week", count: 44 },
-        { key: "once", label: "Once a week", count: 25 },
-        { key: "rarely", label: "Rarely", count: 12 },
-      ],
-    },
-    {
-      id: "q3",
-      text: "What is your primary use case?",
-      mandatory: false,
-      totalAnswers: 98,
-      options: [
-        { key: "internal", label: "Internal feedback", count: 42 },
-        { key: "customer", label: "Customer research", count: 31 },
-        { key: "event", label: "Event planning", count: 15 },
-        { key: "other", label: "Other", count: 10 },
-      ],
-    },
-  ],
+    title: string;
+    description?: string;
+    publishedAt: string | null;
+    totalResponses: number;
+    isAnonymous: boolean;
+  };
+  questions: {
+    id: string;
+    text: string;
+    mandatory: boolean;
+    totalAnswers: number;
+    options: { key: string; label: string; count: number }[];
+  }[];
 };
 
 const OPTION_COLORS = ["#171717", "#404040", "#737373", "#a3a3a3"];
 
 export default function PublishedResults() {
-  const { id } = useParams();
-  const data = MOCK_RESULTS;
+  const { shareId } = useParams();
+  const [data, setData] = useState<ResultsData | null>(null);
 
-  const publishedDate = new Date(data.poll.publishedAt).toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
+  useEffect(() => {
+    const fetchResults = async () => {
+      try {
+        const response = await api.get(`/public/polls/${shareId}`);
+        if (response.data.data.mode !== "results") {
+          toast.error("Results are not published yet");
+          return;
+        }
+        setData(response.data.data.poll);
+      } catch (error: any) {
+        toast.error(error.response?.data?.message || "Could not load results");
+      }
+    };
+
+    fetchResults();
+  }, [shareId]);
+
+  if (!data) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center text-sm text-muted-foreground">
+        Loading results...
+      </div>
+    );
+  }
+
+  const publishedDate = data.poll.publishedAt
+    ? new Date(data.poll.publishedAt).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      })
+    : "recently";
 
   const pieData = data.questions.map((q, i) => ({
     question: `Q${i + 1}`,
@@ -82,23 +80,20 @@ export default function PublishedResults() {
 
   return (
     <div className="min-h-screen bg-background font-sans">
-      {/* Top bar */}
       <div className="border-b border-border sticky top-0 bg-background/95 backdrop-blur-sm z-10">
         <div className="max-w-2xl mx-auto px-6 h-14 flex items-center justify-between">
           <Link to="/" className="text-sm font-semibold tracking-tight text-foreground">
             Pollinkr
           </Link>
-          <div className="text-xs h-8 w-[7.8rem] flex justify-center items-center p-1 bg-muted rounded-xl shadow-m sadow-black/5 ring-1 ring-black/5">
+          <div className="text-xs h-8 w-[7.8rem] flex justify-center items-center p-1 bg-muted rounded-xl shadow-m ring-1 ring-black/5">
             <span className="h-full w-full bg-background rounded-lg py-1 px-2 shadow-m">
-            Results published
+              Results published
             </span>
           </div>
         </div>
       </div>
 
       <div className="max-w-2xl mx-auto px-6 py-12">
-
-        {/* Poll header */}
         <div className="mb-10">
           <h1 className="text-2xl font-semibold tracking-tight text-foreground mb-2">
             {data.poll.title}
@@ -126,35 +121,24 @@ export default function PublishedResults() {
           </div>
         </div>
 
-        {/* Summary stats */}
         <div className="grid grid-cols-3 gap-3 mb-10">
-          <div className="rounded-xl shadow-m sadow-black/5 ring-1 ring-black/5 bg-card px-4 py-3 text-center">
-            <p className="text-xl font-semibold tracking-tight text-foreground">
-              {data.poll.totalResponses}
-            </p>
-            <p className="text-xs text-muted-foreground mt-0.5">Total responses</p>
-          </div>
-          <div className="rounded-xl shadow-m sadow-black/5 ring-1 ring-black/5 bg-card px-4 py-3 text-center">
-            <p className="text-xl font-semibold tracking-tight text-foreground">
-              {data.questions.length}
-            </p>
-            <p className="text-xs text-muted-foreground mt-0.5">Questions</p>
-          </div>
-          <div className="rounded-xl shadow-m sadow-black/5 ring-1 ring-black/5 bg-card px-4 py-3 text-center">
-            <p className="text-xl font-semibold tracking-tight text-foreground">
-              {data.questions.filter((q) => q.mandatory).length}
-            </p>
-            <p className="text-xs text-muted-foreground mt-0.5">Required</p>
-          </div>
+          <SummaryCard label="Total responses" value={data.poll.totalResponses} />
+          <SummaryCard label="Questions" value={data.questions.length} />
+          <SummaryCard
+            label="Required"
+            value={data.questions.filter((q) => q.mandatory).length}
+          />
         </div>
 
-        {/* Question results */}
         <div className="space-y-5">
           <p className="text-sm font-medium text-foreground">Results by question</p>
 
           {data.questions.map((q, i) => {
             const topOption = [...q.options].sort((a, b) => b.count - a.count)[0];
-            const topPct = Math.round((topOption.count / q.totalAnswers) * 100);
+            const topPct =
+              q.totalAnswers === 0 || !topOption
+                ? 0
+                : Math.round((topOption.count / q.totalAnswers) * 100);
 
             const barData = [
               Object.fromEntries([
@@ -162,7 +146,6 @@ export default function PublishedResults() {
                 ...q.options.map((o) => [o.key, o.count]),
               ]),
             ];
-
             const barConfig: ChartConfig = Object.fromEntries(
               q.options.map((o, idx) => [
                 o.key,
@@ -177,7 +160,7 @@ export default function PublishedResults() {
             );
 
             return (
-              <div key={q.id} className="rounded-xl shadow-m sadow-black/5 ring-1 ring-black/5 bg-card p-6">
+              <div key={q.id} className="rounded-xl shadow-m ring-1 ring-black/5 bg-card p-6">
                 <div className="flex items-start justify-between gap-4 mb-5">
                   <div>
                     <p className="text-xs text-muted-foreground mb-1">
@@ -191,7 +174,6 @@ export default function PublishedResults() {
                   </div>
                 </div>
 
-                {/* Bar chart */}
                 <div className="h-44 mb-5">
                   <EvilBarChart
                     className="h-full w-full"
@@ -202,11 +184,11 @@ export default function PublishedResults() {
                   />
                 </div>
 
-                {/* Option rows */}
                 <div className="space-y-2.5">
                   {q.options.map((opt, idx) => {
-                    const pct = Math.round((opt.count / q.totalAnswers) * 100);
-                    const isWinner = opt.key === topOption.key;
+                    const pct =
+                      q.totalAnswers === 0 ? 0 : Math.round((opt.count / q.totalAnswers) * 100);
+                    const isWinner = opt.key === topOption?.key;
                     return (
                       <div key={opt.key}>
                         <div className="flex items-center justify-between mb-1">
@@ -214,7 +196,7 @@ export default function PublishedResults() {
                             {opt.label}
                             {isWinner && (
                               <span className="ml-2 text-xs text-muted-foreground font-normal">
-                                · winner
+                                winner
                               </span>
                             )}
                           </span>
@@ -225,10 +207,7 @@ export default function PublishedResults() {
                         <div className="h-1.5 rounded-full bg-border overflow-hidden">
                           <div
                             className="h-full rounded-full"
-                            style={{
-                              width: `${pct}%`,
-                              background: OPTION_COLORS[idx],
-                            }}
+                            style={{ width: `${pct}%`, background: OPTION_COLORS[idx] }}
                           />
                         </div>
                       </div>
@@ -236,21 +215,21 @@ export default function PublishedResults() {
                   })}
                 </div>
 
-                {/* Winner callout */}
-                <div className="mt-5 pt-4 border-t border-border flex items-center gap-2">
-                  <IconChartBar size={13} className="text-muted-foreground" />
-                  <p className="text-xs text-muted-foreground">
-                    <span className="text-foreground font-medium">{topOption.label}</span>
-                    {" "}won with {topPct}% of votes
-                  </p>
-                </div>
+                {topOption && (
+                  <div className="mt-5 pt-4 border-t border-border flex items-center gap-2">
+                    <IconChartBar size={13} className="text-muted-foreground" />
+                    <p className="text-xs text-muted-foreground">
+                      <span className="text-foreground font-medium">{topOption.label}</span>{" "}
+                      won with {topPct}% of votes
+                    </p>
+                  </div>
+                )}
               </div>
             );
           })}
         </div>
 
-        {/* Pie chart */}
-        <div className="mt-5 rounded-xl shadow-m sadow-black/5 ring-1 ring-black/5 bg-card p-6">
+        <div className="mt-5 rounded-xl shadow-m ring-1 ring-black/5 bg-card p-6">
           <p className="text-sm font-medium text-foreground mb-1">Overall distribution</p>
           <p className="text-xs text-muted-foreground mb-4">
             How responses were spread across questions
@@ -274,6 +253,15 @@ export default function PublishedResults() {
           </Link>
         </p>
       </div>
+    </div>
+  );
+}
+
+function SummaryCard({ label, value }: { label: string; value: string | number }) {
+  return (
+    <div className="rounded-xl shadow-m ring-1 ring-black/5 bg-card px-4 py-3 text-center">
+      <p className="text-xl font-semibold tracking-tight text-foreground">{value}</p>
+      <p className="text-xs text-muted-foreground mt-0.5">{label}</p>
     </div>
   );
 }
