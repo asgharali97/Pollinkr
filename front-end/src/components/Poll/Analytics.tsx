@@ -60,9 +60,11 @@ export default function Analytics() {
   useEffect(() => {
     if (!data?.poll.id) return;
 
-    const socket = io(import.meta.env.VITE_SOCKET_URL || "http://localhost:5000", {
-      withCredentials: true,
-    });
+    const socket = io(
+      import.meta.env.VITE_SOCKET_URL ||
+        (import.meta.env.PROD ? window.location.origin : "http://localhost:4000"),
+      { withCredentials: true }
+    );
 
     socket.emit("poll:join", data.poll.id);
     socket.on("poll:update", (payload: AnalyticsData) => {

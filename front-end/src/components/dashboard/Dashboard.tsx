@@ -99,9 +99,11 @@ export default function Dashboard() {
 
     if (activePollIds.length === 0) return;
 
-    const socket = io(import.meta.env.VITE_SOCKET_URL || "http://localhost:5000", {
-      withCredentials: true,
-    });
+    const socket = io(
+      import.meta.env.VITE_SOCKET_URL ||
+        (import.meta.env.PROD ? window.location.origin : "http://localhost:4000"),
+      { withCredentials: true }
+    );
 
     activePollIds.forEach((pollId) => socket.emit("poll:join", pollId));
 
