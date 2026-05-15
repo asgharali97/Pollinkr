@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { RESPONSE_MODES } from "../../types/poll.types.js";
+import { POLL_STATUSES, RESPONSE_MODES } from "../../types/poll.types.js";
 
 const objectIdSchema = z.string().regex(/^[a-f\d]{24}$/i, "Invalid id");
 const trimmedText = (max: number) => z.string().trim().min(1).max(max);
@@ -25,10 +25,13 @@ const expiresAtSchema = z
 export const createPollDto = z.object({
   title: trimmedText(160),
   description: z.string().trim().max(1200).optional().default(""),
-  responseMode: z.enum(RESPONSE_MODES).default("authenticated"),
+  responseMode: z.enum(RESPONSE_MODES).optional(),
+  anonymous: z.boolean().optional(),
   expiresAt: expiresAtSchema.optional().nullable(),
   questions: z.array(questionDto).min(1).max(50),
   publish: z.boolean().default(false),
+  mode: z.enum(["draft", "publish"]).optional(),
+  status: z.enum(["draft", "active"]).optional(),
 });
 
 export const updatePollDto = z.object({
@@ -47,7 +50,13 @@ export const shareIdParamsDto = z.object({
   shareId: z.string().trim().min(6).max(64),
 });
 
+export const listPollsQueryDto = z.object({
+  status: z.enum(POLL_STATUSES).optional(),
+  search: z.string().trim().max(100).optional(),
+});
+
 export type CreatePollDto = z.infer<typeof createPollDto>;
 export type UpdatePollDto = z.infer<typeof updatePollDto>;
 export type PollIdParamsDto = z.infer<typeof pollIdParamsDto>;
 export type ShareIdParamsDto = z.infer<typeof shareIdParamsDto>;
+export type ListPollsQueryDto = z.infer<typeof listPollsQueryDto>;

@@ -2,8 +2,10 @@ import { createServer } from "node:http";
 import { app } from "./app.js";
 import { connectDB, disconnectDB } from "./config/db.js";
 import { env } from "./config/env.js";
+import { initSocket } from "./sockets/index.js";
 
 const server = createServer(app);
+initSocket(server);
 
 async function bootstrap() {
   await connectDB();

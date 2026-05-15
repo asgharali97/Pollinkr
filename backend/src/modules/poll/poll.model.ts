@@ -191,7 +191,8 @@ pollSchema.pre("validate", function normalizeQuestionAndOptionOrder() {
 });
 
 pollSchema.path("expiresAt").validate(function validateExpiry(value: Date | null) {
-  if (this.status !== "active" || value === null) return true;
+  if (this.status !== "active") return true;
+  if (value === null) return false;
   return value.getTime() > Date.now();
 }, "Active polls must have a future expiry date");
 

@@ -9,6 +9,11 @@ declare global {
         name: string;
         email: string;
       };
+      validated?: {
+        body?: unknown;
+        params?: unknown;
+        query?: unknown;
+      };
     }
   }
 }
