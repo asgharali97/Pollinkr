@@ -9,6 +9,8 @@ import Signup from '@/pages/Signup';
 import Dashboard from '@/pages/Dashboard';
 import CreatePoll from '@/pages/CreatePoll';
 import PollResponse from '@/pages/PollResponse';
+import Analytics from '@/pages/Analytics';
+import PublishedResults from '@/pages/PublishedResults';
 
 const router = createBrowserRouter([
     {
@@ -38,6 +40,14 @@ const router = createBrowserRouter([
         {
           path:"/polls",
           element: <PollResponse/>
+        },
+        {
+          path:"/result",
+          element: <Analytics/>
+        },
+        {
+          path:"/poll/result",
+          element: <PublishedResults/>
         },
       ]
     }
