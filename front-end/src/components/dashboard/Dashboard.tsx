@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { io } from "socket.io-client";
 import Sidebar from "./Sidebar";
 import {
   IconPlus,
@@ -30,6 +31,14 @@ interface Poll {
   isAnonymous: boolean;
   shareId: string;
 }
+
+type PollUpdatePayload = {
+  poll: {
+    id: string;
+    status: PollStatus;
+    totalResponses: number;
+  };
+};
 
 const STATUS_CONFIG: Record<PollStatus, { label: string; className: string }> = {
   draft: {
@@ -82,6 +91,39 @@ export default function Dashboard() {
 
     fetchPolls();
   }, []);
+
+  useEffect(() => {
+    const activePollIds = polls
+      .filter((poll) => poll.status === "active")
+      .map((poll) => poll.id);
+
+    if (activePollIds.length === 0) return;
+
+    const socket = io(import.meta.env.VITE_SOCKET_URL || "http://localhost:5000", {
+      withCredentials: true,
+    });
+
+    activePollIds.forEach((pollId) => socket.emit("poll:join", pollId));
+
+    socket.on("poll:update", (payload: PollUpdatePayload) => {
+      setPolls((current) =>
+        current.map((poll) =>
+          poll.id === payload.poll.id
+            ? {
+                ...poll,
+                status: payload.poll.status,
+                responseCount: payload.poll.totalResponses,
+              }
+            : poll
+        )
+      );
+    });
+
+    return () => {
+      activePollIds.forEach((pollId) => socket.emit("poll:leave", pollId));
+      socket.disconnect();
+    };
+  }, [polls.map((poll) => `${poll.id}:${poll.status}`).join("|")]);
 
   const filtered = polls.filter((p) => {
     const matchesTab = filter === "all" || p.status === filter;
