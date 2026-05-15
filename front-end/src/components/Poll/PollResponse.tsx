@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { IconClock, IconLock, IconCircleCheck, IconAlertCircle } from "@tabler/icons-react";
+import { useAuthStore } from "@/store/auth.store";
+import { AuthLoginDialog } from "@/components/AuthLoginDialog";
+import { Button } from "@/components/ui/button";
 
 // --- Mock data, replace with API call during wiring ---
 const MOCK_POLL = {
@@ -8,7 +11,7 @@ const MOCK_POLL = {
   title: "Q3 Product Feedback — Feature Prioritization",
   description:
     "Help us understand what matters most to you. This takes under 2 minutes.",
-  anonymous: true,
+  anonymous: false,
   status: "active" as PollStatus,
   expiresAt: "2025-08-20T23:59:00Z",
   creator: "Alex Johnson",
@@ -56,6 +59,8 @@ type PageState = "form" | "submitted";
 export default function PollResponse() {
   const { shareId } = useParams();
   const poll = MOCK_POLL; // replace with usePoll(shareId) hook during wiring
+  const token = useAuthStore((s) => s.token);
+  const requiresAuth = !poll.anonymous;
 
   const [answers, setAnswers] = useState<Answers>({});
   const [pageState, setPageState] = useState<PageState>("form");
@@ -64,6 +69,7 @@ export default function PollResponse() {
 
   if (poll.status === "expired") return <PollClosed />;
   if (poll.status === "published") return <PollPublished />;
+  if (requiresAuth && !token) return <AuthRequiredGate poll={poll} />;
 
   const unansweredMandatory = poll.questions
     .filter((q) => q.mandatory && !answers[q.id])
@@ -235,6 +241,59 @@ export default function PollResponse() {
           >
             {submitting ? "Submitting..." : "Submit response"}
           </button>
+        </div>
+
+        <p className="text-center text-xs text-muted-foreground mt-10">
+          Powered by{" "}
+          <Link to="/" className="hover:text-foreground transition-colors">
+            Pollinkr
+          </Link>
+        </p>
+      </div>
+    </div>
+  );
+}
+
+type GatePoll = Pick<typeof MOCK_POLL, "title" | "description" | "expiresAt">;
+
+function AuthRequiredGate({ poll }: { poll: GatePoll }) {
+  return (
+    <div className="min-h-screen bg-background font-sans">
+      <div className="border-b border-border sticky top-0 bg-background/95 backdrop-blur-sm z-10">
+        <div className="max-w-2xl mx-auto px-6 h-14 flex items-center">
+          <Link to="/" className="text-sm font-semibold tracking-tight text-foreground">
+            Pollinkr
+          </Link>
+        </div>
+      </div>
+
+      <div className="max-w-2xl mx-auto px-6 py-12">
+        <div className="mb-10 opacity-60 pointer-events-none select-none">
+          <ExpiryBadge expiresAt={poll.expiresAt} />
+          <h1 className="text-2xl font-semibold tracking-tight text-foreground mt-4 mb-2">
+            {poll.title}
+          </h1>
+          {poll.description && (
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              {poll.description}
+            </p>
+          )}
+        </div>
+
+        <div className="rounded-xl border border-border bg-card p-8 text-center">
+          <div className="w-14 h-14 rounded-2xl bg-foreground/5 border border-border flex items-center justify-center mx-auto mb-6">
+            <IconLock size={24} className="text-foreground" />
+          </div>
+          <h2 className="text-lg font-semibold tracking-tight text-foreground mb-2">
+            Sign in required
+          </h2>
+          <p className="text-sm text-muted-foreground leading-relaxed mb-6 max-w-sm mx-auto">
+            This poll only accepts responses from signed-in users. Sign in to view the
+            questions and submit your answers.
+          </p>
+          <AuthLoginDialog
+            trigger={<Button size="lg">Sign in to respond</Button>}
+          />
         </div>
 
         <p className="text-center text-xs text-muted-foreground mt-10">
