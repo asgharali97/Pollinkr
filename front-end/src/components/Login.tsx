@@ -30,28 +30,28 @@ const Login = () => {
     return (
         <div className="w-full max-w-sm p-2 rounded-[20px] shadow-s shadow-black/5 ring-1 ring-black/5 bg-background">
             <div className="w-full h-full p-5 rounded-xl shadow-m shadow-black/10 ring-1 ring-black/10  bg-card">
-                <div className="mb-6">
+                <div className="mb-6 flex flex-col gap-2">
                     <Link
                         to="/"
-                        className="text-sm font-semibold tracking-tight text-foreground block mb-4"
+                        className="text-sm font-semibold tracking-tight text-foreground block mb-2 leading-none"
                     >
                         Pollinkr
                     </Link>
-                    <h1 className="text-2xl font-semibold tracking-tight text-foreground mb-2">
+                    <div className="text-xl font-semibold tracking-tight text-foreground leading-none">
                         Welcome back
-                    </h1>
-                    <p className="text-sm text-muted-foreground">
+                    </div>
+                    <div className="text-sm text-neutral-600">
                         Sign in to your account to continue.
-                    </p>
+                    </div>
                 </div>
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div className="space-y-2 flex flex-col">
                         <label className="text-md font-normal">Email</label>
-                        <input value={email} onChange={(e) => setEmail(e.target.value)} type="email" required placeholder="jhondoe@gmail.com" className="border py-2 px-4 rounded-xl shadow-s outline-none" />
+                        <input value={email} onChange={(e) => setEmail(e.target.value)} type="email" required placeholder="jhondoe@gmail.com" className="border py-2 px-4 rounded-xl shadow-s outline-none placeholder:text-neutral-600 focus:ring-1 focus:ring-neutral-400"  />
                     </div>
                     <div className="space-y-2 flex flex-col">
                         <label className="text-md font-normal">Password</label>
-                        <input value={password} onChange={(e) => setPassword(e.target.value)} type="password" required placeholder="*******" className="border py-2 px-4 rounded-xl shadow-s outline-none " />
+                        <input value={password} onChange={(e) => setPassword(e.target.value)} type="password" required placeholder="*******" className="border py-2 px-4 rounded-xl shadow-s outline-none placeholder:text-neutral-600 focus:ring-1 focus:ring-neutral-400"  />
                     </div>
                     <div className="flex justify-center w-full mt-6">
                         <button disabled={submitting} type="submit" className="py-2 px-4 rounded-xl cursor-pointer bg-primary/90 shadow-l text-white disabled:opacity-60">{submitting ? "Signing in..." : "Sign in"}</button>
