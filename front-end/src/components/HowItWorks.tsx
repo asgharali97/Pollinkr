@@ -20,12 +20,12 @@ const HowItWorks = () => {
           </h2>
 
         <div
-          className="grid sm:grid-cols-2 gap-4 overflow-hidden py-4"
+          className="grid sm:grid-cols-2 gap-4 overflow-hidden p-2"
         >
           {STEPS.map((step, i) => (
             <div
               key={i}
-              className="p-8 transition-colors border"
+              className="p-8 transition-colors shadow-m shadow-black/5 ring-1 ring-black/5 rounded-xl"
             >
               <span
                 className="text-xs font-semibold tabular-nums mb-4 block"

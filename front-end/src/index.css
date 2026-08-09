@@ -1,12 +1,10 @@
 @import "tailwindcss";
-@import "@fontsource-variable/geist";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --font-sans: "Geist Variable", sans-serif;
   --font-heading: var(--font-sans);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
@@ -62,7 +60,7 @@
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);
   --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
+  --muted-foreground: oklch(0.530 0 0);
   --accent: oklch(0.97 0 0);
   --accent-foreground: oklch(0.205 0 0);
   --destructive: oklch(0.577 0.245 27.325);
@@ -83,13 +81,13 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
-   --shadow-m:
+  --shadow-m:
     inset 0px 1px 2px #ffffff30, /* top highlight */ 0 -0px 2px #00000030,
     /* dark shadow */ 0 1px 4px #00000015; /* soft shadow */
-  --shadow-s: inset 0 1px 2px #ffffff70, 0 2px 4px #00000030,
-    0 4px 8px #00000015;
-  --shadow-l: inset 0px 2px 4px #ffffff80, 1px 6px 8px #00000030,
-    2px 8px 12px #00000015;
+  --shadow-s:
+    inset 0 1px 2px #ffffff70, 0 2px 4px #00000030, 0 4px 8px #00000015;
+  --shadow-l:
+    inset 0px 2px 4px #ffffff80, 1px 6px 8px #00000030, 2px 8px 12px #00000015;
 }
 
 .dark {
@@ -170,4 +168,9 @@
 
 .poll-input {
   @apply w-full px-3 py-2 rounded-lg border border-border bg-background text-foreground text-sm outline-none transition-all placeholder:text-muted-foreground/40 focus:border-foreground/40 focus:ring-2 focus:ring-foreground/6;
+}
+
+.border-l {
+  corner-shape: superellipse(0.6);
+  /* corner-shape: superellipse(0.5); */
 }

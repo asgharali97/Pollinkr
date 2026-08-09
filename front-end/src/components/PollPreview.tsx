@@ -17,7 +17,7 @@ const PollPreview = () => {
         <div
           className="rounded-3xl shadow-s p-2 bg-card "
         >
-          <div className="w-full h-full bg-border/40 p-4 rounded-2xl shadow-m">
+          <div className="w-full h-full bg-muted/90 p-4 rounded-2xl shadow-m">
 
             {!submitted ? (
               <>
@@ -32,7 +32,7 @@ const PollPreview = () => {
                     <button
                       key={i}
                       onClick={() => setSelected(i)}
-                      className="text-left px-3 py-2.5 rounded-xl bg-card text-sm text-muted-foreground shadow-s transition-all border"
+                      className="text-left px-3 py-2.5 rounded-xl bg-background hover:bg-muted/90 text-sm text-foreground/80 hover:text-foreground shadow-s transition-colors border cursor-pointer"
                     >
                       {opt}
                     </button>

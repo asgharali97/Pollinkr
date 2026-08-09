@@ -1,6 +1,6 @@
 # Pollinkr
 
-Pollinkr is a full-stack poll creation and response collection platform built for a hackathon. It allows users to create polls, share public poll links, collect responses, view analytics, and publish final results.
+Pollinkr is a full-stack poll creation and response collection platform. It allows users to create polls, share public poll links, collect responses, view analytics, and publish final results.
 
 The project is built with the MERN stack and TypeScript. The frontend and backend are maintained in one repository.
 

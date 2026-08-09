@@ -6,7 +6,7 @@ const Navbar = () => {
     <header
       className="py-2"
     >
-      <div className="rounded-[20px] shadow-m shadow-black/5 ring-1 ring-black/5 max-w-4xl mx-auto pl-6 pr-2 py-2 flex items-center justify-between">
+      <div className="rounded-2xl shadow-m shadow-black/5 ring-1 ring-black/5 max-w-4xl mx-auto pl-6 pr-2 py-2 flex items-center justify-between">
         <span className="text-base font-semibold tracking-tight">Pollinkr</span>
         <nav className="hidden md:flex items-center gap-6 text-sm text-muted-foreground">
           <a href="#how" className="hover:text-foreground transition-colors">How it works</a>
@@ -15,7 +15,7 @@ const Navbar = () => {
         </nav>
         <div className="flex items-center gap-3">
           <Link to="/login">
-            <button className='bg-primary/90 shadow-l text-white py-2 px-4 rounded-xl cursor-pointer'>Sign up</button>
+            <button className='bg-primary shadow-l text-white py-2 px-4 rounded-lg cursor-pointer border-l hover:bg-primary/90'>Sign up</button>
           </Link>
         </div>
       </div>
