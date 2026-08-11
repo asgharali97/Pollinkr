@@ -183,16 +183,14 @@ export default function Dashboard() {
             </div>
 
             <div className="flex items-center justify-between mb-5 gap-4">
-              <div className="flex items-center gap-1 rounded-lg p-1 bg-card shadow-m">
+              <div className="flex items-center gap-1 rounded-[6px] p-0.5 bg-muted shadow-m">
                 {TABS.map((tab) => (
                   <button
                     key={tab.key}
                     onClick={() => setFilter(tab.key)}
-                    className="px-3 py-1 rounded-sm text-xs font-medium transition-all hover:shadow-s"
-                    style={{
-                      background: filter === tab.key ? "hsl(var(--foreground))" : "transparent",
-                      color: filter === tab.key ? "hsl(var(--background))" : "hsl(var(--muted-foreground))",
-                    }}
+                    className={`px-3 py-1 rounded-[4px] text-xs font-medium transition-all text-muted-foreground hover:text-foreground/80 hover:bg-accent-foreground ${
+                      filter === tab.key ? "bg-background text-foreground hover:bg-background" : ""
+                    }`}
                   >
                     {tab.label}
                   </button>

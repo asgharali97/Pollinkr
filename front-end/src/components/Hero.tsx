@@ -6,7 +6,6 @@ const Hero = () => {
   return (
     <section className="mt-12 px-6">
       <div className="max-w-3xl mx-auto text-center">
-
         <h1
           className="text-xl sm:text-2xl md:text-5xl font-semibold tracking-tight leading-[1.08] mb-4"
           style={{ letterSpacing: "-0.03em" }}
@@ -20,21 +19,23 @@ const Hero = () => {
         </p>
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-          <Link
-            to="/Signup"
-          >
-            <button className="flex items-center gap-2 px-6 py-2.5 rounded-lg bg-foreground/90 text-background text-sm font-medium shadow-l cursor-pointer">
+          <Link to="/Signup">
+            <button className="flex items-center gap-2 px-6 py-2.5 rounded-lg bg-foreground/90 text-background text-sm font-medium shadow-l cursor-pointer scale-[1] active:scale-[0.995]">
               Create your first poll
               <IconArrowRight size={15} />
             </button>
           </Link>
           <a href="#how">
-          <button
-            className="bg-muted px-6 py-2.5 rounded-lg shadow-m shadow-black/5 ring-1 ring-black/5 text-sm text-foreground border-l hover:bg-background transition-colors cursor-pointer"
-            >
-            See how it works
-          </button>
-        </a>
+            <button className="p-[2px] rounded-[12px] bg-gradient-to-b from-white to-stone-200/40 shadow-[0_1px_3px_rgba(0,0,0,0.5)] active:shadow-[0_0px_1px_rgba(0,0,0,0.5)] active:scale-[0.995] cursor-pointer shadow-m">
+              <div className="bg-gradient-to-b  from-stone-200/40 to-white/80 rounded-[10px] p-2">
+                <div className="flex gap-2 items-center">
+                  <span className="font-medium text-sm text-neutral-950">
+                    Get Started
+                  </span>
+                </div>
+              </div>
+            </button>
+          </a>
         </div>
 
         <PollPreview />
