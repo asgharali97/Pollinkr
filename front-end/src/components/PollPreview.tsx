@@ -15,9 +15,9 @@ const PollPreview = () => {
     <>
       <div className="mt-16 max-w-sm mx-auto text-left">
         <div
-          className="rounded-3xl shadow-s p-2 bg-card "
+          className="rounded-3xl shadow-s p-2"
         >
-          <div className="w-full h-full bg-muted/90 p-4 rounded-2xl shadow-m">
+          <div className="w-full h-full bg-card p-4 rounded-2xl shadow-m">
 
             {!submitted ? (
               <>
