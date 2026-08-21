@@ -23,7 +23,7 @@ const CreatePollCard = () => {
 
   return (
     <div
-      className="rounded-2xl bg-card flex-col border border-border p-4 mb-1 select-none"
+      className="rounded-2xl bg-card flex-col border border-border p-4 mb-2 select-none"
       style={{
         maskImage:
           "linear-gradient(to left, transparent, black 90%), linear-gradient(to top, transparent, black 20%)",
@@ -42,8 +42,8 @@ const CreatePollCard = () => {
         <div className="space-y-2 mb-6">
           {POLL_DATA.questions.map((q, idx) => (
             <div key={idx} className="flex items-start gap-3">
-              <div className="w-6 h-6 rounded-full bg-sky-50 border border-sky-200 flex items-center justify-center flex-shrink-0 mt-0.5">
-                <IconQuestionMark size={14} className="text-sky-300" />
+              <div className="w-6 h-6 rounded-full bg-primary-light-1/50 flex items-center justify-center shrink-0 mt-0.5">
+                <IconQuestionMark size={14} className="text-primary-light-3/90" />
               </div>
               <p className="text-xs text-foreground truncate leading-snug pt-1">
                 {q}
@@ -51,22 +51,22 @@ const CreatePollCard = () => {
             </div>
           ))}
         </div>
-        <button className="p-0.5 rounded-[12px] bg-linear-to-b from-white to-stone-200/40 shadow-m shadow-black/5 ring-1 ring-black/5 active:shadow-[0_0px_1px_rgba(0,0,0,0.5)] active:scale-[0.995] cursor-pointer mb-4">
+        <button className="p-0.5 rounded-xl bg-linear-to-b from-white to-stone-200/40 shadow-m shadow-black/5 ring-1 ring-black/5 active:shadow-[0_0px_1px_rgba(0,0,0,0.5)] active:scale-[0.995] cursor-pointer mb-4">
           <div className="bg-linear-to-b  from-stone-200/40 to-white/80 rounded-[10px] p-2 flex items-center justify-center gap-2">
-            <IconPlus size={14} className="text-cyan-200" />
+            <IconPlus size={14} className="text-primary-light-1" />
             <span className="text-sm text-foreground/90">Add question</span>
           </div>
         </button>
         <button
-          className="p-0.5 rounded-[12px] bg-linear-to-b from-white to-stone-200/40 shadow-m shadow-black/5 ring-1 ring-black/5 active:shadow-[0_0px_1px_rgba(0,0,0,0.5)] active:scale-[0.995] cursor-pointer mb-4"
+          className="p-0.5 rounded-xl bg-linear-to-b from-white to-stone-200/40 shadow-m shadow-black/5 ring-1 ring-black/5 active:shadow-[0_0px_1px_rgba(0,0,0,0.5)] active:scale-[0.995] cursor-pointer mb-4"
           onClick={() => setIsAnonymous(!isAnonymous)}
         >
           <div className="bg-linear-to-b  from-stone-200/40 to-white/80 rounded-[10px] p-2 gap-2 flex items-center justify-between">
             <div className="flex items-center gap-2">
               {isAnonymous ? (
-                <IconLockOpen size={14} className="text-emerald-300" />
+                <IconLockOpen size={14} className="text-primary-light-2" />
               ) : (
-                <IconLock size={14} className="text-emerald-400" />
+                <IconLock size={14} className="text-primary-light-2" />
               )}
               <span className="text-xs text-foreground/80">
                 {isAnonymous ? "Anonymous" : "Authenticated"}
@@ -74,9 +74,9 @@ const CreatePollCard = () => {
             </div>
             <div>
               {isAnonymous ? (
-                <IconToggleRight size={16} className="text-emerald-300" />
+                <IconToggleRight size={16} className="text-primary-light-2" />
               ) : (
-                <IconToggleLeft size={16} className="text-emerald-400" />
+                <IconToggleLeft size={16} className="text-primary-light-2" />
               )}
             </div>
           </div>
