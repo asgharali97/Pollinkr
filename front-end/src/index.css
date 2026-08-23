@@ -41,6 +41,7 @@
   --shadow-m: var(--shadow-m);
   --shadow-l: var(--shadow-l);
   --shadow-s: var(--shadow-s);
+  --shadow-chart: var(--shadow-chart);
   --color-primary-light-1: var(--primary-light-1);
   --color-primary-light-2: var(--primary-light-2);
   --color-primary-light-3: var(--primary-light-3);
@@ -88,6 +89,10 @@
     inset 0 1px 2px #ffffff70, 0 2px 4px #00000030, 0 4px 8px #00000015;
   --shadow-l:
     inset 0px 2px 4px #ffffff80, 1px 6px 8px #00000030, 2px 8px 12px #00000015;
+  --shadow-l:
+    inset 0px 2px 4px #ffffff80, 1px 6px 8px #00000030, 2px 8px 12px #00000015;
+  --shadow-chart:
+    inset 0px 2px 4px #ffffff80, 0px 4px 8px #ffffff70, 0px 8px 12px #ffffff60;
 }
 
 .dark {

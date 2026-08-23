@@ -1,19 +1,23 @@
 import { AnimatePresence, motion } from "motion/react";
 import { IconCheck, IconCopy, IconLink } from "@tabler/icons-react";
 import { useState } from "react";
+import { useSound } from "@/hooks/useSound";
+import { clickSoftSound } from "@/lib/click-soft";
 
 const SHARE_URL = "pollinkr.com/p/7xK2mQ";
 
 const ShareLinkCard = () => {
+  const [play] = useSound(clickSoftSound);
   const [copied, setCopied] = useState(false);
 
   const handleCopy = async () => {
+    play();
     await navigator.clipboard.writeText(`https://${SHARE_URL}`);
     setCopied(true);
-
     window.setTimeout(() => {
       setCopied(false);
     }, 1600);
+    // play();
   };
 
   return (
@@ -33,6 +37,7 @@ const ShareLinkCard = () => {
           <motion.div
             whileHover={{ scale: 1.06 }}
             transition={{ duration: 0.15, ease: "easeOut" }}
+            onClick={() => play()}
             className="flex size-7 shrink-0 items-center justify-center rounded-md transition-colors hover:bg-primary-light-1/20"
           >
             <IconLink size={15} className="text-primary-light-2" />
