@@ -1,4 +1,3 @@
-import { IconCheck } from "@tabler/icons-react";
 import { IconTimeline } from '@tabler/icons-react';
 const RESPONSE_ACTIVITY = [
   32, 46, 38, 58, 42, 66, 52, 48, 32, 64, 56, 28, 42, 56, 32, 58,

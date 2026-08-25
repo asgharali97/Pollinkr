@@ -23,10 +23,10 @@ const STEPS = [
     grid: "col-span-2 row-span-1",
   },
   {
-    label: "Read the results",
-    sub: "Analytics update live. Publish when you're ready.",
+    label: "",
+    sub: "",
     component: ReadResultsCard,
-    grid: "col-span-4 row-span-1",
+    grid: "col-span-4 rows-span-1",
   },
 ];
 
@@ -51,7 +51,7 @@ const HowItWorks = () => {
               key={label}
               className={`grid h-full grid-rows-[1fr_auto] rounded-[24px] bg-background px-6 py-4 shadow-m shadow-black/5 ring-1 ring-black/5 ${grid}`}
             >
-              <div className="flex items-start">
+              <div className="flex items-start min-h-0">
                 <Component />
               </div>
 
