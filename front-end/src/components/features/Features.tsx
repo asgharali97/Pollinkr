@@ -31,13 +31,13 @@ const FEATURES = [
   {
     label: "Mandatory & optional questions",
     sub: "Not every question needs an answer. Mark what's required and let respondents skip the rest.",
-    component: RequiredQuestions,
+    component: ShareLinkCard,
     grid: "col-span-2 row-span-2",
   },
   {
     label: "Publish final results",
     sub: "When you're done, publish. Anyone with the link can now see the outcome — transparently.",
-    component: PublishResults,
+    component: ShareLinkCard,
     grid: "col-span-2 row-span-2",
   },
 ];
