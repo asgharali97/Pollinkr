@@ -1,7 +1,6 @@
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import HowItWorks from "@/components/process/HowItWorks";
-import Features from "@/components/Features";
 import SocialProof from "@/components/SocailProf";
 import CTA from "@/components/CTA";
 import Footer from "@/components/Footer";
@@ -14,7 +13,6 @@ export default function Landing() {
       <Navbar />
       <Hero />
       <HowItWorks />
-      <Features />
       <SocialProof />
       <CTA />
       <Footer />

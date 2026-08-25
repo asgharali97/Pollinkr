@@ -1,86 +1,33 @@
-import React, { useState, useEffect, useRef } from 'react'
-import { IconShieldCheck, IconArrowRight } from "@tabler/icons-react"
-import { Link } from 'react-router-dom';
-
-function useInView(ref: React.RefObject<Element>, threshold = 0.15) {
-    const [visible, setVisible] = useState(false);
-    useEffect(() => {
-        const el = ref.current;
-        if (!el) return;
-        const obs = new IntersectionObserver(
-            ([e]) => {
-                if (e.isIntersecting) {
-                    setVisible(true);
-                    obs.disconnect();
-                }
-            },
-            { threshold },
-        );
-        obs.observe(el);
-        return () => obs.disconnect();
-    }, []);
-    return visible;
-}
-
-function FadeIn({
-    children,
-    delay = 0,
-    className = "",
-}: {
-    children: React.ReactNode;
-    delay?: number;
-    className?: string;
-}) {
-    const ref = useRef<HTMLDivElement>(null!);
-    const visible = useInView(ref);
-    return (
-        <div
-            ref={ref}
-            className={className}
-            style={{
-                opacity: visible ? 1 : 0,
-                transform: visible ? "translateY(0)" : "translateY(18px)",
-                transition: `opacity 0.55s ease ${delay}ms, transform 0.55s ease ${delay}ms`,
-            }}
-        >
-            {children}
-        </div>
-    );
-}
+import { IconShieldCheck, IconArrowRight } from "@tabler/icons-react";
+import { Link } from "react-router-dom";
 
 const CTA = () => {
-    return (
-        <section className="py-24 px-6 border-t border-border">
-            <div className="max-w-2xl mx-auto text-center">
-                <FadeIn>
-                    <div
-                        className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium mb-6 border"
-                        style={{ borderColor: "hsl(var(--border))", color: "hsl(var(--muted-foreground))" }}
-                    >
-                        <IconShieldCheck size={12} />
-                        No credit card. No setup.
-                    </div>
-                    <h2
-                        className="text-4xl sm:text-5xl font-semibold tracking-tight mb-5"
-                        style={{ letterSpacing: "-0.03em" }}
-                    >
-                        Start collecting
-                        <br />responses today.
-                    </h2>
-                    <p className="text-muted-foreground mb-8 text-base">
-                        Create an account, build your first poll in under a minute, and share it — the rest takes care of itself.
-                    </p>
-                    <Link
-                        to="/register"
-                        className="inline-flex items-center gap-2 px-7 py-3 rounded-md bg-foreground text-background text-sm font-medium hover:opacity-90 transition-opacity"
-                    >
-                        Create free account
-                        <IconArrowRight size={15} />
-                    </Link>
-                </FadeIn>
-            </div>
-        </section>
-    );
-}
+  return (
+    <section className="py-12 px-6 border-t border-border border-dashed ">
+      <div className="max-w-4xl mx-auto text-center bg-card py-8 px-4 rounded-2xl shadow-m shadow-black/5 ring-1 ring-black/5">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium mb-6  bg-primary-light-1/50 text-foreground/70 shadow-chart ring-1 ring-primary-light-1/80">
+          <IconShieldCheck size={12} />
+          No credit card. No setup.
+        </div>
+        <h2 className="text-xl sm:text-2xl md:text-5xl font-semibold tracking-tight leading-[1.08] mb-4">
+          Start collecting responses today.
+        </h2>
+        <p className="text-lg text-muted-foreground max-w-xl mx-auto leading-relaxed mb-6">
+          Create an account, build your first poll in under a minute, and share
+          it the rest takes care of itself.
+        </p>
+        <Link
+          to="/Signup"
+          className="inline-flex items-center"
+        >
+          <button className="flex items-center gap-2 px-6 py-2.5 rounded-lg bg-primary text-background text-sm font-medium shadow-l cursor-pointer active:scale-[0.995] shadow-black/5 ring-1 ring-primary/90">
+            Create free account
+            <IconArrowRight size={15} />
+          </button>
+        </Link>
+      </div>
+    </section>
+  );
+};
 
-export default CTA
+export default CTA;
