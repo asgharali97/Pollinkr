@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
-import api from "@/lib/api";
+import api, { type ApiEnvelope } from "@/lib/api";
 import { useAuthStore } from "@/store/auth.store";
 
 interface LoginPayload {
@@ -27,7 +27,7 @@ export const useRegister = () => {
 
   return useMutation({
     mutationFn: async (payload: RegisterPayload) => {
-      const res = await api.post<AuthResponse>("/auth/register", payload);
+      const res = await api.post<ApiEnvelope<AuthResponse>>("/auth/register", payload);
       return res.data.data;
     },
     onSuccess: (data) => {
@@ -41,7 +41,7 @@ export const useLogin = () => {
 
   return useMutation({
     mutationFn: async (payload: LoginPayload) => {
-      const res = await api.post<AuthResponse>("/auth/login", payload);
+      const res = await api.post<ApiEnvelope<AuthResponse>>("/auth/login", payload);
       return res.data.data;
     },
     onSuccess: (data) => {
@@ -67,7 +67,7 @@ export const useLogout = () => {
 export const useRefreshToken = () => {
   return useMutation({
     mutationFn: async () => {
-      const res = await api.post<AuthResponse>("/auth/refresh");
+      const res = await api.post<ApiEnvelope<AuthResponse>>("/auth/refresh");
       return res.data.data;
     },
   });
@@ -77,7 +77,7 @@ export const useMe = () => {
   return useQuery({
     queryKey: ["auth", "me"],
     queryFn: async () => {
-      const res = await api.get("/auth/me");
+      const res = await api.get<ApiEnvelope<AuthResponse>>("/auth/me");
       return res.data.data;
     },
     staleTime: 1000 * 60 * 5,

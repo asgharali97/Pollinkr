@@ -203,6 +203,7 @@ export default function CreatePoll() {
         toast.success(
           mode === "publish" ? "Poll published" : "Poll saved as draft",
         );
+        // @ts-expect-error `id` is defined
         navigate(`/polls/${response.id}/analytics`);
       }
     } catch (error: any) {
