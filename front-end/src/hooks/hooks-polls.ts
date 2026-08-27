@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import api from "@/lib/api";
+import api, { type ApiEnvelope } from "@/lib/api";
 
 export interface Question {
   id: string;
@@ -9,17 +9,17 @@ export interface Question {
 }
 
 export interface Poll {
-  id: string;
-  title: string;
-  description?: string;
-  status: "draft" | "active" | "expired" | "published";
-  isAnonymous: boolean;
-  expiresAt?: string;
-  createdAt: string;
-  shareId: string;
-  responseCount: number;
-  questionCount: number;
-  questions: Question[];
+    id: string;
+    title: string;
+    description?: string;
+    status: "draft" | "active" | "expired" | "published";
+    anonymous: boolean;
+    expiresAt?: string;
+    createdAt: string;
+    shareId: string;
+    responseCount: number;
+    questionCount: number;
+    questions: Question[];
 }
 
 export interface PollListQuery {
@@ -32,7 +32,9 @@ export interface CreatePollPayload {
   title: string;
   description?: string;
   isAnonymous: boolean;
+  responseMode: "anonymous" | "authenticated";
   expiresAt?: string;
+  status: "draft" | "active";
   questions: {
     text: string;
     mandatory: boolean;
@@ -45,6 +47,8 @@ export interface UpdatePollPayload {
   description?: string;
   isAnonymous?: boolean;
   expiresAt?: string;
+  status: "draft" | "active" | "expired" | "published";
+  responseMode: "anonymous" | "authenticated";
   questions?: {
     id?: string;
     text: string;
@@ -53,13 +57,14 @@ export interface UpdatePollPayload {
   }[];
 }
 
-
 export const useListPolls = (query?: PollListQuery) => {
   return useQuery({
     queryKey: ["polls", query],
     queryFn: async () => {
-      const res = await api.get<{ polls: Poll[] }>("/polls", { params: query });
-      return res.data.data.polls;
+      const res = await api.get<ApiEnvelope<{ polls: Poll[] }>>("/polls", {
+        params: query,
+      });
+      return res.data.data;
     },
     staleTime: 1000 * 30,
   });
@@ -70,8 +75,8 @@ export const useGetPoll = (id?: string) => {
     queryKey: ["polls", id],
     queryFn: async () => {
       if (!id) throw new Error("Poll ID is required");
-      const res = await api.get<{ poll: Poll }>(`/polls/${id}`);
-      return res.data.data.poll;
+      const res = await api.get<ApiEnvelope<{ poll: Poll }>>(`/polls/${id}`);
+      return res.data.data;
     },
     enabled: !!id,
     staleTime: 1000 * 30,
@@ -83,8 +88,8 @@ export const useCreatePoll = () => {
 
   return useMutation({
     mutationFn: async (payload: CreatePollPayload) => {
-      const res = await api.post<{ poll: Poll }>("/polls", payload);
-      return res.data.data.poll;
+      const res = await api.post<ApiEnvelope<{ poll: Poll }>>("/polls", payload);
+      return res.data.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["polls"] });
@@ -97,8 +102,11 @@ export const useUpdatePoll = (id: string) => {
 
   return useMutation({
     mutationFn: async (payload: UpdatePollPayload) => {
-      const res = await api.patch<{ poll: Poll }>(`/polls/${id}`, payload);
-      return res.data.data.poll;
+      const res = await api.patch<ApiEnvelope<{ poll: Poll }>>(
+        `/polls/${id}`,
+        payload,
+      );
+      return res.data.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["polls"] });
@@ -106,7 +114,6 @@ export const useUpdatePoll = (id: string) => {
     },
   });
 };
-
 
 export const useDeletePoll = (id: string) => {
   const queryClient = useQueryClient();
@@ -127,8 +134,10 @@ export const usePublishResults = (id: string) => {
 
   return useMutation({
     mutationFn: async () => {
-      const res = await api.post<{ poll: Poll }>(`/polls/${id}/publish-results`);
-      return res.data.data.poll;
+      const res = await api.post<ApiEnvelope<{ poll: Poll }>>(
+        `/polls/${id}/publish-results`,
+      );
+      return res.data.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["polls"] });
@@ -136,7 +145,6 @@ export const usePublishResults = (id: string) => {
     },
   });
 };
-
 
 export const useGetAnalytics = (id?: string) => {
   return useQuery({

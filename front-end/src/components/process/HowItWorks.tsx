@@ -45,7 +45,7 @@ const HowItWorks = () => {
           From idea to insight in four steps.
         </h2>
 
-        <div className="grid auto-rows-[220px] grid-cols-4 gap-4">
+        <div className="grid auto-rows-[200px] gril-cols-1 md:auto-rows-[220px] md:grid-cols-4 gap-4">
           {STEPS.map(({ label, sub, component: Component, grid }) => (
             <div
               key={label}

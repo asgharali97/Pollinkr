@@ -20,15 +20,14 @@ export type RespondentContext = {
 };
 
 export async function createPoll(userId: string, payload: CreatePollDto) {
-  const shouldPublish =
-    payload.publish || payload.mode === "publish" || payload.status === "active";
-  const status = shouldPublish ? "active" : "draft";
   const responseMode =
     payload.responseMode ?? (payload.anonymous ? "anonymous" : "authenticated");
-
+  const status = payload.status ?? "draft";
   if (status === "active" && !payload.expiresAt) {
     throw ApiError.badRequest("Published polls require an expiry date");
   }
+  const now = new Date();
+  const expiryDate = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
 
   const poll = await Poll.create({
     creator: new Types.ObjectId(userId),
@@ -36,7 +35,7 @@ export async function createPoll(userId: string, payload: CreatePollDto) {
     description: payload.description,
     responseMode,
     status,
-    expiresAt: payload.expiresAt ?? null,
+    expiresAt: payload.expiresAt ?? expiryDate,
     questions: payload.questions,
   });
 
@@ -86,9 +85,11 @@ export async function updatePoll(
   if (payload.description !== undefined) poll.description = payload.description;
   if (payload.responseMode !== undefined) poll.responseMode = payload.responseMode;
   if (payload.expiresAt !== undefined) poll.expiresAt = payload.expiresAt;
+  if (payload.status !== undefined) poll.status = payload.status;
   if (payload.questions !== undefined) {
     poll.questions = payload.questions as PollDocument["questions"];
   }
+
 
   await poll.save();
   return serializeCreatorPoll(poll);

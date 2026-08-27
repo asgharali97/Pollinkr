@@ -17,6 +17,7 @@ import {
 import { toast } from "sonner";
 import api from "@/lib/api";
 import { useAuthStore } from "@/store/auth.store";
+import { useDeletePoll } from "@/hooks/hooks-polls";
 
 type PollStatus = "draft" | "active" | "expired" | "published";
 
@@ -40,24 +41,28 @@ type PollUpdatePayload = {
   };
 };
 
-const STATUS_CONFIG: Record<PollStatus, { label: string; className: string }> = {
-  draft: {
-    label: "Draft",
-    className: "bg-neutral-100 text-neutral-500 dark:bg-neutral-800 dark:text-neutral-400",
-  },
-  active: {
-    label: "Active",
-    className: "bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400",
-  },
-  expired: {
-    label: "Expired",
-    className: "bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-400",
-  },
-  published: {
-    label: "Published",
-    className: "bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-400",
-  },
-};
+const STATUS_CONFIG: Record<PollStatus, { label: string; className: string }> =
+  {
+    draft: {
+      label: "Draft",
+      className:
+        "bg-neutral-100 text-neutral-500 dark:bg-neutral-800 dark:text-neutral-400",
+    },
+    active: {
+      label: "Active",
+      className:
+        "bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400",
+    },
+    expired: {
+      label: "Expired",
+      className:
+        "bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-400",
+    },
+    published: {
+      label: "Published",
+      className: "bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-400",
+    },
+  };
 
 type FilterTab = "all" | PollStatus;
 
@@ -101,8 +106,10 @@ export default function Dashboard() {
 
     const socket = io(
       import.meta.env.VITE_SOCKET_URL ||
-        (import.meta.env.PROD ? window.location.origin : "http://localhost:4000"),
-      { withCredentials: true }
+        (import.meta.env.PROD
+          ? window.location.origin
+          : "http://localhost:4000"),
+      { withCredentials: true },
     );
 
     activePollIds.forEach((pollId) => socket.emit("poll:join", pollId));
@@ -116,8 +123,8 @@ export default function Dashboard() {
                 status: payload.poll.status,
                 responseCount: payload.poll.totalResponses,
               }
-            : poll
-        )
+            : poll,
+        ),
       );
     });
 
@@ -146,7 +153,6 @@ export default function Dashboard() {
 
         <main className="flex-1 min-h-screen pl-60">
           <div className="max-w-4xl mx-auto px-8 py-10">
-
             <div className="flex items-start justify-between mb-10">
               <div>
                 <p className="text-xs text-muted-foreground mb-1 uppercase tracking-widest font-medium">
@@ -159,7 +165,10 @@ export default function Dashboard() {
               <button
                 onClick={() => navigate("/polls/create")}
                 className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-opacity hover:opacity-90"
-                style={{ background: "hsl(var(--foreground))", color: "hsl(var(--background))" }}
+                style={{
+                  background: "hsl(var(--foreground))",
+                  color: "hsl(var(--background))",
+                }}
               >
                 <IconPlus size={15} />
                 New poll
@@ -176,8 +185,12 @@ export default function Dashboard() {
                   key={s.label}
                   className="rounded-xl bg-card shadow-m sadow-black/5 ring-1 ring-black/5 py-4 px-5"
                 >
-                  <p className="text-2xl font-semibold tracking-tight">{s.value}</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">{s.label}</p>
+                  <p className="text-2xl font-semibold tracking-tight">
+                    {s.value}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    {s.label}
+                  </p>
                 </div>
               ))}
             </div>
@@ -189,7 +202,9 @@ export default function Dashboard() {
                     key={tab.key}
                     onClick={() => setFilter(tab.key)}
                     className={`px-3 py-1 rounded-[4px] text-xs font-medium transition-all text-muted-foreground hover:text-foreground/80 hover:bg-accent-foreground ${
-                      filter === tab.key ? "bg-background text-foreground hover:bg-background" : ""
+                      filter === tab.key
+                        ? "bg-background text-foreground hover:bg-background"
+                        : ""
                     }`}
                   >
                     {tab.label}
@@ -221,7 +236,16 @@ export default function Dashboard() {
             ) : (
               <div className="flex flex-col gap-2">
                 {filtered.map((poll, i) => (
-                  <PollRow key={poll.id} poll={poll} index={i} />
+                  <PollRow
+                    key={poll.id}
+                    poll={poll}
+                    index={i}
+                    onDeleted={() =>
+                      setPolls((current) =>
+                        current.filter((item) => item.id !== poll.id),
+                      )
+                    }
+                  />
                 ))}
               </div>
             )}
@@ -232,9 +256,29 @@ export default function Dashboard() {
   );
 }
 
-function PollRow({ poll, index }: { poll: Poll; index: number }) {
+function PollRow({
+  poll,
+  index,
+  onDeleted,
+}: {
+  poll: Poll;
+  index: number;
+  onDeleted: () => void;
+}) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const deletePoll = useDeletePoll(poll.id);
   const status = STATUS_CONFIG[poll.status];
+
+  const handleDelete = async () => {
+    try {
+      await deletePoll.mutateAsync();
+      onDeleted();
+      setMenuOpen(false);
+      toast.success("Poll deleted successfully");
+    } catch {
+      toast.error("Could not delete poll");
+    }
+  };
 
   const expiryLabel = poll.expiresAt
     ? formatExpiry(poll.expiresAt)
@@ -249,14 +293,18 @@ function PollRow({ poll, index }: { poll: Poll; index: number }) {
     >
       <div className="flex-1 min-w-0 mr-6">
         <div className="flex items-center gap-2.5 mb-1.5">
-          <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${status.className}`}>
+          <span
+            className={`text-xs font-medium px-2 py-0.5 rounded-full ${status.className}`}
+          >
             {status.label}
           </span>
           {poll.isAnonymous && (
             <span className="text-xs text-muted-foreground/60">Anonymous</span>
           )}
         </div>
-        <p className="text-sm font-medium text-foreground truncate">{poll.title}</p>
+        <p className="text-sm font-medium text-foreground truncate">
+          {poll.title}
+        </p>
         <div className="flex items-center gap-4 mt-1.5">
           <span className="flex items-center gap-1 text-xs text-muted-foreground">
             <IconUsers size={11} />
@@ -286,7 +334,9 @@ function PollRow({ poll, index }: { poll: Poll; index: number }) {
             icon={<IconShare2 size={14} />}
             label="Share"
             onClick={() => {
-              navigator.clipboard.writeText(`${window.location.origin}/p/${poll.shareId}`);
+              navigator.clipboard.writeText(
+                `${window.location.origin}/p/${poll.shareId}`,
+              );
               toast.success("Share link copied");
             }}
           />
@@ -312,11 +362,14 @@ function PollRow({ poll, index }: { poll: Poll; index: number }) {
               onMouseLeave={() => setMenuOpen(false)}
             >
               {poll.status === "expired" && (
-                <MenuItem label="Publish results" onClick={() => setMenuOpen(false)} />
+                <MenuItem
+                  label="Publish results"
+                  onClick={() => setMenuOpen(false)}
+                />
               )}
               <MenuItem
                 label="Delete poll"
-                onClick={() => setMenuOpen(false)}
+                onClick={handleDelete}
                 danger
                 icon={<IconTrash size={13} />}
               />
@@ -382,7 +435,6 @@ function MenuItem({
   );
 }
 
-
 function EmptyState({ hasPolls }: { hasPolls: boolean }) {
   return (
     <div className="flex flex-col items-center justify-center py-24 text-center">
@@ -401,7 +453,10 @@ function EmptyState({ hasPolls }: { hasPolls: boolean }) {
         <Link
           to="/polls/create"
           className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium hover:opacity-90 transition-opacity"
-          style={{ background: "hsl(var(--foreground))", color: "hsl(var(--background))" }}
+          style={{
+            background: "hsl(var(--foreground))",
+            color: "hsl(var(--background))",
+          }}
         >
           <IconPlus size={14} />
           Create poll

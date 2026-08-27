@@ -30,7 +30,6 @@ export const createPollDto = z.object({
   expiresAt: expiresAtSchema.optional().nullable(),
   questions: z.array(questionDto).min(1).max(50),
   publish: z.boolean().default(false),
-  mode: z.enum(["draft", "publish"]).optional(),
   status: z.enum(["draft", "active"]).optional(),
 });
 
@@ -40,6 +39,7 @@ export const updatePollDto = z.object({
   responseMode: z.enum(RESPONSE_MODES).optional(),
   expiresAt: expiresAtSchema.optional().nullable(),
   questions: z.array(questionDto).min(1).max(50).optional(),
+  status: z.enum(["draft", "active"]).optional(),
 });
 
 export const pollIdParamsDto = z.object({

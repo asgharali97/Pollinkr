@@ -1,7 +1,10 @@
 
+import { useEffect, useState } from "react";
+
 type StatusBarProps = {
   percentage: number;
   tileCount?: number;
+  lgTileCount?: number;
   className?: string;
   tileClassName?: string;
   mutedTileClassName?: string;
@@ -10,15 +13,28 @@ type StatusBarProps = {
 const StatusBar = ({
   percentage,
   tileCount = 40,
+  lgTileCount,
   className = "",
   tileClassName = "bg-primary-light-2",
   mutedTileClassName = "bg-foreground/10",
 }: StatusBarProps) => {
-  const activeTiles = Math.round((percentage / 100) * tileCount);
+  const [isLargeScreen, setIsLargeScreen] = useState(false);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(min-width: 865px)");
+    const updateScreenSize = () => setIsLargeScreen(mediaQuery.matches);
+
+    updateScreenSize();
+    mediaQuery.addEventListener("change", updateScreenSize);
+    return () => mediaQuery.removeEventListener("change", updateScreenSize);
+  }, []);
+
+  const responsiveTileCount = isLargeScreen && lgTileCount ? lgTileCount : tileCount;
+  const activeTiles = Math.round((percentage / 100) * responsiveTileCount);
 
   return (
-    <div className={`flex items-center gap-1.5 ${className}`}>
-      {Array.from({ length: tileCount }).map((_, index) => (
+    <div className={`flex min-w-0 overflow-hidden md:ite items-center gap-1.5 ${className}`}>
+      {Array.from({ length: responsiveTileCount }).map((_, index) => (
         <div
           key={index}
           className={`h-8 w-2 rounded-[3px] ${
@@ -70,12 +86,13 @@ const ReadResultsCard = () => {
 
         <div className="mt-3 flex min-w-0 items-center gap-6">
           <h4 className="shrink-0 text-lg font-medium text-foreground/80 tracking-tight">
-            Chose Option 4
+            69% Chose Option 4
           </h4>
 
           <StatusBar
             percentage={69}
-            tileCount={50}
+            tileCount={40}
+            lgTileCount={47}
             tileClassName="bg-primary-light-2 shadow-chart shadow-black/5 ring-1 ring-primary-light-2"
           />
         </div>
