@@ -114,8 +114,7 @@ export const useUpdatePoll = (id: string) => {
     },
   });
 };
-
-export const useDeletePoll = (id: string) => {
+export const useClosePoll = (id: string) => {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -123,12 +122,25 @@ export const useDeletePoll = (id: string) => {
       await api.post(`/polls/${id}/close`);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["polls"] });
+      queryClient.invalidateQueries({ queryKey: ["polls"] }); 
       queryClient.removeQueries({ queryKey: ["polls", id] });
     },
   });
 };
 
+export const useDeletePoll = (id: string) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async () => {
+      await api.delete(`/polls/${id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["polls"] }); 
+      queryClient.removeQueries({ queryKey: ["polls", id] });
+    },
+  });
+};
 export const usePublishResults = (id: string) => {
   const queryClient = useQueryClient();
 

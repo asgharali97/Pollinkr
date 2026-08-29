@@ -55,6 +55,8 @@ const questionSchema = z.object({
   options: z.array(optionSchema).min(2, "At least 2 options required"),
 });
 
+
+
 const pollSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().optional(),

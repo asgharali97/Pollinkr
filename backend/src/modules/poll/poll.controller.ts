@@ -8,6 +8,7 @@ import type {
 import {
   closePoll,
   createPoll,
+  deletePoll,
   getCreatorAnalytics,
   getCreatorPoll,
   getPublicPoll,
@@ -49,6 +50,11 @@ export async function update(req: Request, res: Response) {
 export async function close(req: Request, res: Response) {
   const poll = await closePoll(req.user!.id, getParam(req, "id"));
   return ApiResponse.ok(res, "Poll closed successfully", { poll });
+}
+
+export async function deletePollHandler(req: Request, res: Response) {
+  await deletePoll(req.user!.id, getParam(req, "id"));
+  return ApiResponse.ok(res, "Poll deleted successfully");
 }
 
 export async function publishResults(req: Request, res: Response) {

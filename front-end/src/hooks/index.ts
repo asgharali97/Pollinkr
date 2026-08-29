@@ -1,4 +1,3 @@
-
 export {
   useLogin,
   useRegister,
@@ -6,13 +5,13 @@ export {
   useRefreshToken,
   useMe,
 } from "./hooks-auth";
-
 export {
   useListPolls,
   useGetPoll,
   useCreatePoll,
   useUpdatePoll,
   useDeletePoll,
+  useClosePoll,
   usePublishResults,
   useGetAnalytics,
   type Poll,

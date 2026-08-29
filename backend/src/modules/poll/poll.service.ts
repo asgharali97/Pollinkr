@@ -109,6 +109,18 @@ export async function closePoll(userId: string, pollId: string) {
   return serializeCreatorPoll(poll);
 }
 
+export async function deletePoll(userId: string, pollId: string) {
+  const poll = await findOwnedPoll(userId, pollId);
+
+  if (poll.status !== "draft") {
+    throw ApiError.badRequest("Only draft polls can be deleted");
+  }
+
+  await Poll.deleteOne({ _id: pollId });
+
+  return { message: "Poll deleted successfully" };
+}
+
 export async function publishPollResults(userId: string, pollId: string) {
   const poll = await findOwnedPoll(userId, pollId);
   await syncExpiredPoll(poll);

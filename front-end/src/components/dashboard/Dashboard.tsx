@@ -17,7 +17,7 @@ import {
 import { toast } from "sonner";
 import api from "@/lib/api";
 import { useAuthStore } from "@/store/auth.store";
-import { useDeletePoll } from "@/hooks/hooks-polls";
+import { useDeletePoll, useClosePoll } from "@/hooks/hooks-polls";
 
 type PollStatus = "draft" | "active" | "expired" | "published";
 
@@ -256,7 +256,7 @@ export default function Dashboard() {
   );
 }
 
-function PollRow({
+export function PollRow({
   poll,
   index,
   onDeleted,
@@ -266,23 +266,50 @@ function PollRow({
   onDeleted: () => void;
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
-  const deletePoll = useDeletePoll(poll.id);
+  const deleteMutation = useDeletePoll(poll.id);
+  const closeMutation = useClosePoll(poll.id);
   const status = STATUS_CONFIG[poll.status];
-
-  const handleDelete = async () => {
-    try {
-      await deletePoll.mutateAsync();
-      onDeleted();
-      setMenuOpen(false);
-      toast.success("Poll deleted successfully");
-    } catch {
-      toast.error("Could not delete poll");
-    }
-  };
 
   const expiryLabel = poll.expiresAt
     ? formatExpiry(poll.expiresAt)
     : "No expiry";
+
+  const handleDelete = async () => {
+    try {
+      await deleteMutation.mutateAsync();
+      onDeleted();
+      toast.success("Poll deleted");
+      setMenuOpen(false);
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Could not delete poll");
+    }
+  };
+
+  const handleClose = async () => {
+    try {
+      await closeMutation.mutateAsync();
+      onDeleted();
+      toast.success("Poll closed");
+      setMenuOpen(false);
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Could not close poll");
+    }
+  };
+
+  const deleteAction =
+    poll.status === "draft"
+      ? {
+          label: "Delete poll",
+          action: handleDelete,
+          loading: deleteMutation.isPending,
+        }
+      : poll.status === "active"
+        ? {
+            label: "Close poll",
+            action: handleClose,
+            loading: closeMutation.isPending,
+          }
+        : null;
 
   return (
     <div
@@ -354,7 +381,7 @@ function PollRow({
             onClick={() => setMenuOpen(!menuOpen)}
             className="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
           >
-            <IconDots size={15} />
+            {poll.status !== "published" ? <IconDots size={15} /> : null}
           </button>
           {menuOpen && (
             <div
@@ -367,12 +394,15 @@ function PollRow({
                   onClick={() => setMenuOpen(false)}
                 />
               )}
-              <MenuItem
-                label="Delete poll"
-                onClick={handleDelete}
-                danger
-                icon={<IconTrash size={13} />}
-              />
+              {deleteAction && (
+                <MenuItem
+                  label={deleteAction.label}
+                  onClick={deleteAction.action}
+                  danger
+                  icon={<IconTrash size={13} />}
+                  disabled={deleteAction.loading}
+                />
+              )}
             </div>
           )}
         </div>

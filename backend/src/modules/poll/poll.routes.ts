@@ -7,6 +7,7 @@ import {
   analytics,
   close,
   create,
+  deletePollHandler,
   detail,
   list,
   publicDetail,
@@ -32,28 +33,37 @@ pollRoutes.get("/:id", validateRequest({ params: pollIdParamsDto }), detail);
 pollRoutes.patch(
   "/:id",
   validateRequest({ params: pollIdParamsDto, body: updatePollDto }),
-  update
+  update,
 );
-pollRoutes.post("/:id/close", validateRequest({ params: pollIdParamsDto }), close);
+pollRoutes.post(
+  "/:id/close",
+  validateRequest({ params: pollIdParamsDto }),
+  close,
+);
+pollRoutes.delete(
+  "/:id",
+  validateRequest({ params: pollIdParamsDto }),
+  deletePollHandler,
+);
 pollRoutes.post(
   "/:id/publish-results",
   validateRequest({ params: pollIdParamsDto }),
-  publishResults
+  publishResults,
 );
 pollRoutes.get(
   "/:id/analytics",
   validateRequest({ params: pollIdParamsDto }),
-  analytics
+  analytics,
 );
 
 publicPollRoutes.get(
   "/:shareId",
   validateRequest({ params: shareIdParamsDto }),
-  publicDetail
+  publicDetail,
 );
 publicPollRoutes.post(
   "/:shareId/responses",
   optionalAuth,
   validateRequest({ params: shareIdParamsDto, body: submitResponseDto }),
-  submitResponse
+  submitResponse,
 );
