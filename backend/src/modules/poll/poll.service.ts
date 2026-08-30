@@ -182,7 +182,7 @@ export async function submitPollResponse(
 
   if (poll.status !== "active") {
     throw ApiError.badRequest(
-      `This poll is not accepting responses because its status is "${poll.status}"`
+      `This poll is no longer accepting responses`
     );
   }
 
@@ -311,6 +311,7 @@ function hashValue(value: string) {
 function serializeCreatorPoll(poll: PollDocument) {
   return {
     id: poll._id.toString(),
+    creator: poll.creator.toString(),
     shareId: poll.shareId,
     title: poll.title,
     description: poll.description,

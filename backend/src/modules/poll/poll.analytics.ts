@@ -46,6 +46,7 @@ export async function buildPollAnalytics(poll: PollDocument) {
   return {
     poll: {
       id: poll._id.toString(),
+      creatorId: poll.creator.toString(),
       shareId: poll.shareId,
       title: poll.title,
       description: poll.description,
