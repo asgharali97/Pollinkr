@@ -2,6 +2,8 @@ import { useFieldArray, useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useNavigate, useParams } from "react-router-dom";
+import { FieldError } from "./FieldError";
+import { SortableQuestion } from "./SortQuestions";
 import {
   DndContext,
   closestCenter,
@@ -12,18 +14,13 @@ import {
 import {
   SortableContext,
   verticalListSortingStrategy,
-  useSortable,
 } from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
 import {
   IconPlus,
-  IconTrash,
-  IconGripVertical,
   IconX,
   IconClock,
   IconLock,
   IconLockOpen,
-  IconAlertCircle,
   IconChevronDown,
 } from "@tabler/icons-react";
 import { format } from "date-fns";
@@ -54,8 +51,6 @@ const questionSchema = z.object({
   mandatory: z.boolean(),
   options: z.array(optionSchema).min(2, "At least 2 options required"),
 });
-
-
 
 const pollSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -114,10 +109,10 @@ export default function CreatePoll() {
   useEffect(() => {
     if (isEdit && pollData) {
       const expiryDate = pollData.poll.expiresAt
-      ? new Date(pollData.poll.expiresAt)
-      : undefined;
+        ? new Date(pollData.poll.expiresAt)
+        : undefined;
       const timer = setTimeout(() => setDate(expiryDate), 0);
-      
+
       reset({
         title: pollData.poll.title,
         description: pollData.poll.description || "",
@@ -131,7 +126,7 @@ export default function CreatePoll() {
         })),
       });
       const formReadyTimer = setTimeout(() => setIsFormReady(true), 0);
-      
+
       return () => {
         clearTimeout(formReadyTimer);
         clearTimeout(timer);
@@ -146,7 +141,7 @@ export default function CreatePoll() {
       </div>
     );
   }
-  
+
   if (isEdit && !pollData) {
     return (
       <div className="min-h-screen flex items-center justify-center text-sm text-red-500">
@@ -154,7 +149,7 @@ export default function CreatePoll() {
       </div>
     );
   }
-  
+
   const onDragEnd = (event: any) => {
     const { active, over } = event;
     if (!over || active.id === over.id) return;
@@ -162,13 +157,11 @@ export default function CreatePoll() {
     const newIndex = questions.findIndex((q) => q.id === over.id);
     move(oldIndex, newIndex);
   };
-  const onSubmit = async (
-    data: PollForm,
-    mode: "draft" | "publish",
-  ) => {
+
+  const onSubmit = async (data: PollForm, mode: "draft" | "publish") => {
     try {
       const expiresAt = date ? endOfSelectedDay(date).toISOString() : null;
-      
+
       if (isEdit) {
         const updatePayload: UpdatePollPayload = {
           title: data.title,
@@ -200,7 +193,7 @@ export default function CreatePoll() {
             options: question.options.map((option) => ({ text: option.text })),
           })),
         };
-        
+
         const response = await createMutation.mutateAsync(createPayload);
         toast.success(
           mode === "publish" ? "Poll published" : "Poll saved as draft",
@@ -210,7 +203,7 @@ export default function CreatePoll() {
       }
     } catch (error: any) {
       const message =
-      error.response?.data?.message || error.message || "Could not save poll";
+        error.response?.data?.message || error.message || "Could not save poll";
       toast.error(message);
     }
   };
@@ -422,154 +415,6 @@ function endOfSelectedDay(value: Date) {
   return date;
 }
 
-function SortableQuestion({
-  id,
-  qIndex,
-  control,
-  register,
-  errors,
-  onRemove,
-  canRemove,
-}: {
-  id: string;
-  qIndex: number;
-  control: any;
-  register: any;
-  errors: any;
-  onRemove: () => void;
-  canRemove: boolean;
-}) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id });
-
-  const {
-    fields: options,
-    append: addOption,
-    remove: removeOption,
-  } = useFieldArray({
-    control,
-    name: `questions.${qIndex}.options`,
-  });
-
-  return (
-    <div
-      ref={setNodeRef}
-      style={{ transform: CSS.Transform.toString(transform), transition }}
-      className={`rounded-xl border border-border bg-card p-5 space-y-4 ${
-        isDragging ? "opacity-50 shadow-lg" : ""
-      }`}
-    >
-      <div className="flex items-start gap-3">
-        <button
-          type="button"
-          {...attributes}
-          {...listeners}
-          className="mt-2.5 text-muted-foreground hover:text-foreground cursor-grab active:cursor-grabbing transition-colors"
-          aria-label="Drag to reorder"
-        >
-          <IconGripVertical size={16} />
-        </button>
-
-        <div className="flex-1 space-y-2">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-muted-foreground uppercase tracking-widest">
-              Q{qIndex + 1}
-            </span>
-            <div className="flex items-center gap-3">
-              <Controller
-                control={control}
-                name={`questions.${qIndex}.mandatory`}
-                render={({ field }) => (
-                  <button
-                    type="button"
-                    onClick={() => field.onChange(!field.value)}
-                    className={`text-xs px-2.5 py-1 rounded-full shadow-m transition-colors ${
-                      field.value
-                        ? "shadow-black/5 ring-1 ring-black/10 border-foreground/30 text-foreground bg-primary-foreground"
-                        : "text-muted-foreground"
-                    } cursor-pointer`}
-                  >
-                    {field.value ? "Required" : "Optional"}
-                  </button>
-                )}
-              />
-              {canRemove && (
-                <button
-                  type="button"
-                  onClick={onRemove}
-                  className="text-muted-foreground hover:text-red-500 transition-colors"
-                  aria-label="Remove question"
-                >
-                  <IconTrash size={14} />
-                </button>
-              )}
-            </div>
-          </div>
-
-          <input
-            {...register(`questions.${qIndex}.text`)}
-            placeholder="Enter your question"
-            className={`poll-input text-sm ${
-              errors.questions?.[qIndex]?.text ? "border-red-400" : ""
-            }`}
-          />
-          {errors.questions?.[qIndex]?.text && (
-            <FieldError message={errors.questions[qIndex].text.message} />
-          )}
-        </div>
-      </div>
-
-      <div className="pl-7 space-y-2">
-        <p className="text-xs text-muted-foreground font-medium mb-2">
-          Options
-        </p>
-        {options.map((opt, oIndex) => (
-          <div key={opt.id} className="flex items-center gap-2">
-            <span className="w-5 h-5 rounded-full border border-border flex-shrink-0" />
-            <input
-              {...register(`questions.${qIndex}.options.${oIndex}.text`)}
-              placeholder={`Option ${oIndex + 1}`}
-              className={`poll-input text-sm flex-1 ${
-                errors.questions?.[qIndex]?.options?.[oIndex]?.text
-                  ? "border-red-400"
-                  : ""
-              }`}
-            />
-            {options.length > 2 && (
-              <button
-                type="button"
-                onClick={() => removeOption(oIndex)}
-                className="text-muted-foreground hover:text-red-500 transition-colors flex-shrink-0"
-              >
-                <IconX size={13} />
-              </button>
-            )}
-          </div>
-        ))}
-
-        {errors.questions?.[qIndex]?.options?.root && (
-          <FieldError message={errors.questions[qIndex].options.root.message} />
-        )}
-
-        <button
-          type="button"
-          onClick={() => addOption({ text: "" })}
-          className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors mt-1"
-        >
-          <IconPlus size={12} />
-          Add option
-        </button>
-      </div>
-    </div>
-  );
-}
-
 function Label({
   text,
   required,
@@ -589,15 +434,5 @@ function Label({
         </span>
       )}
     </label>
-  );
-}
-
-function FieldError({ message }: { message?: string }) {
-  if (!message) return null;
-  return (
-    <p className="flex items-center gap-1 text-xs text-red-500 mt-1">
-      <IconAlertCircle size={12} />
-      {message}
-    </p>
   );
 }
