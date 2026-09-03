@@ -9,6 +9,7 @@ import { useAuthStore } from "@/store/auth.store";
 import type { FilterTab, Poll } from "@/types/index";
 import { PollRow } from "./PollRow";
 import { EmptyState } from "./EmptyState";
+import type { PollUpdatePayload } from "@/types/index";
 
 const TABS: { key: FilterTab; label: string }[] = [
   { key: "all", label: "All" },
