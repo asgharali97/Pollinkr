@@ -22,3 +22,19 @@ export type PollUpdatePayload = {
 };
 
 export type FilterTab = "all" | PollStatus;
+
+export type PublicPoll = {
+  id: string;
+  shareId: string;
+  title: string;
+  description?: string;
+  anonymous: boolean;
+  status: PollStatus;
+  expiresAt: string;
+  questions: {
+    id: string;
+    text: string;
+    mandatory: boolean;
+    options: { id: string; text: string }[];
+  }[];
+};

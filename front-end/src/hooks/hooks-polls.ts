@@ -13,7 +13,7 @@ export interface Poll {
     title: string;
     description?: string;
     status: "draft" | "active" | "expired" | "published";
-    anonymous: boolean;
+    isAnonymous: boolean;
     expiresAt?: string;
     createdAt: string;
     shareId: string;

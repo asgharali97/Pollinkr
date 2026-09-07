@@ -82,7 +82,7 @@ export function PollRow({
 
   return (
     <div
-      className="group flex items-center justify-between px-5 py-4 rounded-xl bg-card transition-all duration-150 shadow-s hover:shadow-m"
+      className="group flex items-center justify-between px-5 py-4 rounded-xl bg-card transition-all duration-150 shadow-m hover:shadow-s"
       style={{
         animationDelay: `${index * 40}ms`,
       }}

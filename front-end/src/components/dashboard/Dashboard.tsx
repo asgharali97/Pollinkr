@@ -179,7 +179,7 @@ export default function Dashboard() {
             ) : filtered.length === 0 ? (
               <EmptyState hasPolls={polls.length > 0} />
             ) : (
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-col gap-3">
                 {filtered.map((poll, i) => (
                   <PollRow
                     key={poll.id}
