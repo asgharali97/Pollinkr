@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { IconChartBar, IconClock, IconLock, IconUsers } from "@tabler/icons-react";
+import { IconChartBar, IconClock, IconLock, IconUsers, IconAlertCircle } from "@tabler/icons-react";
 import { toast } from "sonner";
 import { EvilBarChart } from "@/components/evilcharts/charts/bar-chart";
 import { EvilPieChart } from "@/components/evilcharts/charts/pie-chart";
@@ -27,30 +27,69 @@ type ResultsData = {
 const OPTION_COLORS = ["#171717", "#404040", "#737373", "#a3a3a3"];
 
 export default function PublishedResults() {
+  // NOTE: shareId is the canonical route parameter for public URLs
+  // For debugging/future: this matches /p/:shareId/results (public route)
+  // If refactoring internal routes, use shareId consistently for public-facing results
   const { shareId } = useParams();
+
   const [data, setData] = useState<ResultsData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchResults = async () => {
       try {
+        setLoading(true);
+        setError(null);
         const response = await api.get(`/public/polls/${shareId}`);
+
+        // Verify the poll is actually published before rendering results
         if (response.data.data.mode !== "results") {
-          toast.error("Results are not published yet");
+          setError("Results are not published yet");
           return;
         }
+
         setData(response.data.data.poll);
       } catch (error: any) {
-        toast.error(error.response?.data?.message || "Could not load results");
+        const message = error.response?.data?.message || "Could not load results";
+        setError(message);
+        toast.error(message);
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchResults();
   }, [shareId]);
 
-  if (!data) {
+  if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center text-sm text-muted-foreground">
         Loading results...
+      </div>
+    );
+  }
+
+  if (error || !data) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center px-6 font-sans">
+        <div className="text-center max-w-sm">
+          <div className="w-14 h-14 rounded-2xl bg-foreground/5 border border-border flex items-center justify-center mx-auto mb-6">
+            <IconAlertCircle size={24} className="text-muted-foreground" />
+          </div>
+          <h1 className="text-xl font-semibold tracking-tight text-foreground mb-2">
+            Results not available
+          </h1>
+          <p className="text-sm text-muted-foreground leading-relaxed mb-8">
+            {error || "This poll's results are not yet published or don't exist."}
+          </p>
+          <Link
+            to="/"
+            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
+            Back to Pollinkr
+          </Link>
+        </div>
       </div>
     );
   }
@@ -75,7 +114,7 @@ export default function PublishedResults() {
         label: `Q${i + 1}`,
         colors: { light: [OPTION_COLORS[i]], dark: [OPTION_COLORS[i]] },
       },
-    ])
+    ]),
   );
 
   return (
@@ -156,7 +195,7 @@ export default function PublishedResults() {
                     dark: [OPTION_COLORS[idx]],
                   },
                 },
-              ])
+              ]),
             );
 
             return (
@@ -192,7 +231,11 @@ export default function PublishedResults() {
                     return (
                       <div key={opt.key}>
                         <div className="flex items-center justify-between mb-1">
-                          <span className={`text-xs ${isWinner ? "text-foreground font-medium" : "text-muted-foreground"}`}>
+                          <span
+                            className={`text-xs ${
+                              isWinner ? "text-foreground font-medium" : "text-muted-foreground"
+                            }`}
+                          >
                             {opt.label}
                             {isWinner && (
                               <span className="ml-2 text-xs text-muted-foreground font-normal">
