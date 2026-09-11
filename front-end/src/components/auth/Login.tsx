@@ -1,32 +1,32 @@
 import { useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
-import api from "@/lib/api";
 import { useAuthStore } from "@/store/auth.store";
+import { useLogin } from "@/hooks/index";
 
-const Signup = () => {
+const Login = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const setAuth = useAuthStore((s) => s.setAuth);
-  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const createMutation = useLogin();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
+    const payload = {
+      email,
+      password,
+    };
     try {
-      const response = await api.post("/auth/register", {
-        name,
-        email,
-        password,
-      });
-      setAuth(response.data.data.user, "cookie-session");
-      toast.success("Account created");
+      const response = await createMutation.mutateAsync(payload);
+      setAuth(response.user, "cookie-user")
+      toast.success("Logged in successfully");
       navigate(searchParams.get("returnTo") || "/dashboard");
     } catch (error: any) {
-      toast.error(error.response?.data?.message || "Signup failed");
+      toast.error(error.response?.data?.message || "Login failed");
     } finally {
       setSubmitting(false);
     }
@@ -42,25 +42,14 @@ const Signup = () => {
           >
             Pollinkr
           </Link>
-          <div className="text-xl font-semibold tracking-tight leading-none text-foreground">
-            Create an account
+          <div className="text-xl font-semibold tracking-tight text-foreground leading-none">
+            Welcome back
           </div>
           <div className="text-sm text-neutral-600">
-            Start collecting responses in under a minute.
+            Sign in to your account to continue.
           </div>
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2 flex flex-col">
-            <label className="text-md font-normal">Full Name</label>
-            <input
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              type="text"
-              required
-              placeholder="John Doe"
-              className="bg-background border py-2 px-4 rounded-xl shadow-s outline-none placeholder:text-muted-foreground/80 focus:ring-1 focus:ring-muted"
-            />
-          </div>
           <div className="space-y-2 flex flex-col">
             <label className="text-md font-normal">Email</label>
             <input
@@ -87,20 +76,20 @@ const Signup = () => {
             <button
               disabled={submitting}
               type="submit"
-              className="py-2 px-4 rounded-xl cursor-pointer bg-primary/90 shadow-l text-white disabled:opacity-60"
+              className="py-2 px-4 rounded-xl cursor-pointer bg-primary/90 shadow-l text-background disabled:opacity-60"
             >
-              {submitting ? "Creating..." : "Create account"}
+              {submitting ? "Signing in..." : "Sign in"}
             </button>
           </div>
         </form>
 
         <p className="mt-6 text-center text-sm text-muted-foreground">
-          Already have an account?
+          No account?
           <Link
-            to="/login"
+            to="/Signup"
             className="text-muted-foreground font-medium hover:underline underline-offset-4 hover:text-foreground ml-1 transition-all"
           >
-            Sign in
+            Create one
           </Link>
         </p>
       </div>
@@ -108,4 +97,4 @@ const Signup = () => {
   );
 };
 
-export default Signup;
+export default Login;

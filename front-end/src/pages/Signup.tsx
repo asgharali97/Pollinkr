@@ -1,4 +1,4 @@
-import SingupCard from '@/components/Signup';
+import SingupCard from '@/components/auth/Signup';
 const Signup = () => {
     return (
         <>
