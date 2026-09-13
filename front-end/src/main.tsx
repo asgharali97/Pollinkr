@@ -16,6 +16,7 @@ import Dashboard from "@/pages/Dashboard";
 import CreatePoll from "@/pages/CreatePoll";
 import PollResponse from "@/pages/PollResponse";
 import Analytics from "@/pages/Analytics";
+import Analytic from "@/pages/Analytic";
 import PublishedResults from "@/pages/PublishedResults";
 import NotFound from "@/pages/NotFound";
 import { useAuthStore } from "@/store/auth.store";
@@ -30,14 +31,14 @@ const queryClient = new QueryClient({
 });
 
 export function ProtectedRoute() {
-  const token = useAuthStore((s) => s.token);
-  if (!token) return <Navigate to="/login" replace />;
+  const user = useAuthStore((s) => s.user);
+  if (!user) return <Navigate to="/login" replace />;
   return <Outlet />;
 }
 
 function GuestRoute() {
-  const token = useAuthStore((s) => s.token);
-  if (token) return <Navigate to="/dashboard" replace />;
+  const user = useAuthStore((s) => s.user);
+  if (user) return <Navigate to="/dashboard" replace />;
   return <Outlet />;
 }
 
@@ -65,6 +66,7 @@ const router = createBrowserRouter([
           { path: "polls/create", element: <CreatePoll /> },
           { path: "polls/:id/edit", element: <CreatePoll /> },
           { path: "polls/:id/analytics", element: <Analytics /> },
+          { path: "polls/:id/analytic", element: <Analytic /> },
         ],
       },
 

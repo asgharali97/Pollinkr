@@ -103,7 +103,6 @@ export function AuthLoginDialog({
 
         <p className="text-center text-sm text-muted-foreground">
           No account?{" "}
-          {/* todo after creating account user should redirect to the same page not to dashboard */}
           <Link
             to={`/signup?returnTo=${returnTo}`}
             className="font-medium hover:underline underline-offset-4 hover:text-foreground transition-colors"

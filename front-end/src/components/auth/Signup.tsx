@@ -1,32 +1,36 @@
 import { useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
-import { useAuthStore } from "@/store/auth.store";
 import { useRegister } from "@/hooks/index";
 
 const Signup = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const setAuth = useAuthStore((s) => s.setAuth);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const createMutation = useRegister();
+  const returnTo = searchParams.get("returnTo");
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
     const payload = {
-      name, 
+      name,
       email,
-      password
-    }
+      password,
+    };
 
     try {
-      const response = await createMutation.mutateAsync(payload);
-      setAuth(response.user, "cookie-session");
+      await createMutation.mutateAsync(payload);
       toast.success("Account created");
-      navigate(searchParams.get("returnTo") || "/dashboard");
+      
+      if (returnTo) {
+        navigate(decodeURIComponent(returnTo));
+      } else {
+        navigate("/dashboard");
+      }
     } catch (error: any) {
       toast.error(error.response?.data?.message || "Signup failed");
     } finally {

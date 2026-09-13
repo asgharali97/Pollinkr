@@ -19,7 +19,6 @@ interface AuthResponse {
     name: string;
     email: string;
   };
-  accessToken: string;
 }
 
 export const useRegister = () => {
@@ -31,7 +30,7 @@ export const useRegister = () => {
       return res.data.data;
     },
     onSuccess: (data) => {
-      setAuth(data.user, data.accessToken);
+      setAuth(data.user, "cookie-session");
     },
   });
 };
@@ -45,7 +44,7 @@ export const useLogin = () => {
       return res.data.data;
     },
     onSuccess: (data) => {
-      setAuth(data.user, data.accessToken);
+      setAuth(data.user, "cookie-session");
     },
   });
 };

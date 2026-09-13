@@ -14,17 +14,17 @@ type PageState = "form" | "submitted";
 export default function PollResponse() {
   const { shareId } = useParams();
   const navigate = useNavigate();
-  const token = useAuthStore((s) => s.token);
+  const user = useAuthStore((s) => s.user); 
 
   const [answers, setAnswers] = useState<Answers>({});
   const [pageState, setPageState] = useState<PageState>("form");
   const [submitting, setSubmitting] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
-  const [socketDisconnected, setSocketDisconnected] = useState(false);
-  const [authDialogOpen, setAuthDialogOpen] = useState(false);
+  const [socketDisconnected] = useState(false);
 
   const { data: pollData, isLoading: pollLoading } = useGetPublicPoll(shareId);
   const submitMutation = useSubmitResponse(shareId!);
+
 
   if (pollLoading) {
     return (
@@ -85,7 +85,7 @@ export default function PollResponse() {
   }
 
   const requiresAuth = !pollData.isAnonymous;
-  const userNotLoggedIn = !token;
+  const userNotLoggedIn = !user;
   const isBlocked = requiresAuth && userNotLoggedIn;
 
   if (isBlocked) {

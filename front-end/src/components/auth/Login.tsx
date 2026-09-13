@@ -12,6 +12,7 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const createMutation = useLogin();
+  const returnTo = searchParams.get("returnTo");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,9 +23,14 @@ const Login = () => {
     };
     try {
       const response = await createMutation.mutateAsync(payload);
-      setAuth(response.user, "cookie-user")
+      setAuth(response.user, "cookie-session");
       toast.success("Logged in successfully");
-      navigate(searchParams.get("returnTo") || "/dashboard");
+
+      if (returnTo) {
+        navigate(decodeURIComponent(returnTo));
+      } else {
+        navigate("/dashboard");
+      }
     } catch (error: any) {
       toast.error(error.response?.data?.message || "Login failed");
     } finally {
@@ -86,7 +92,7 @@ const Login = () => {
         <p className="mt-6 text-center text-sm text-muted-foreground">
           No account?
           <Link
-            to="/Signup"
+            to={returnTo ? `/signup?returnTo=${encodeURIComponent(returnTo)}` : "/signup"}
             className="text-muted-foreground font-medium hover:underline underline-offset-4 hover:text-foreground ml-1 transition-all"
           >
             Create one
