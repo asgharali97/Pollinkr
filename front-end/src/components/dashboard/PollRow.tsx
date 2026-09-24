@@ -11,20 +11,24 @@ import {
   IconClock,
   IconChartBar,
   IconShare2,
-  IconDots
+  IconDots,
 } from "@tabler/icons-react";
 import { ActionBtn } from "./ActionBtn";
 import { MenuItem } from "./MenuItem";
+
+interface PollRowProps {
+  poll: Poll;
+  index: number;
+  onDeleted: () => void;
+  onViewAnalytics: (pollId: string) => void;
+}
 
 export function PollRow({
   poll,
   index,
   onDeleted,
-}: {
-  poll: Poll;
-  index: number;
-  onDeleted: () => void;
-}) {
+  onViewAnalytics,
+}: PollRowProps) {
   function formatExpiry(iso: string): string {
     const diff = new Date(iso).getTime() - Date.now();
     if (diff < 0) return "Expired";
@@ -122,7 +126,7 @@ export function PollRow({
           <ActionBtn
             icon={<IconChartBar size={14} />}
             label="Analytics"
-            to={`/polls/${poll.id}/analytics`}
+            onClick={() => onViewAnalytics(poll.id)}
           />
         )}
         {poll.status === "active" && (

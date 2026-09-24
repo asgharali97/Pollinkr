@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { io } from "socket.io-client";
 import Sidebar from "./Sidebar";
 import { IconPlus, IconSearch } from "@tabler/icons-react";
@@ -10,6 +10,7 @@ import type { FilterTab, Poll } from "@/types/index";
 import { PollRow } from "./PollRow";
 import { EmptyState } from "./EmptyState";
 import type { PollUpdatePayload } from "@/types/index";
+import Analytics from "../Poll/Analytics";
 
 const TABS: { key: FilterTab; label: string }[] = [
   { key: "all", label: "All" },
@@ -23,9 +24,12 @@ export default function Dashboard() {
   const user = useAuthStore((s) => s.user);
   const [polls, setPolls] = useState<Poll[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const currentTab = searchParams.get("tab") || "polls";
   const [filter, setFilter] = useState<FilterTab>("all");
   const [search, setSearch] = useState("");
   const navigate = useNavigate();
+  const analyticsId = searchParams.get("pollId");
 
   useEffect(() => {
     const fetchPolls = async () => {
@@ -91,110 +95,119 @@ export default function Dashboard() {
     responses: polls.reduce((a, p) => a + p.responseCount, 0),
   };
 
+  const handleViewAnalytics = (pollId: string) => {
+    setSearchParams({ tab: "analytics", pollId });
+  };
+
   return (
     <div className="min-h-screen bg-background text-foreground font-sans">
       <div className="flex">
         <Sidebar />
 
         <main className="flex-1 min-h-screen pl-60">
-          <div className="max-w-4xl mx-auto px-8 py-10">
-            <div className="flex items-start justify-between mb-10">
-              <div>
-                <p className="text-xs text-muted-foreground mb-1 uppercase tracking-widest font-medium">
-                  Dashboard
-                </p>
-                <h1 className="text-2xl font-semibold tracking-tight">
-                  Good morning, {user?.name?.split(" ")[0] || "there"}.
-                </h1>
-              </div>
-              <button
-                onClick={() => navigate("/polls/create")}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-opacity hover:opacity-90"
-                style={{
-                  background: "hsl(var(--foreground))",
-                  color: "hsl(var(--background))",
-                }}
-              >
-                <IconPlus size={15} />
-                New poll
-              </button>
-            </div>
-
-            <div className="grid grid-cols-3 gap-4 mb-10">
-              {[
-                { label: "Total polls", value: counts.total },
-                { label: "Active now", value: counts.active },
-                { label: "Total responses", value: counts.responses },
-              ].map((s) => (
-                <div
-                  key={s.label}
-                  className="rounded-xl bg-card shadow-m sadow-black/5 ring-1 ring-black/5 py-4 px-5"
-                >
-                  <p className="text-2xl font-semibold tracking-tight">
-                    {s.value}
+          {currentTab === "polls" && (
+            <div className="max-w-4xl mx-auto px-8 py-10">
+              <div className="flex items-start justify-between mb-10">
+                <div>
+                  <p className="text-xs text-muted-foreground mb-1 uppercase tracking-widest font-medium">
+                    Dashboard
                   </p>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    {s.label}
-                  </p>
+                  <h1 className="text-2xl font-semibold tracking-tight">
+                    Good morning, {user?.name?.split(" ")[0] || "there"}.
+                  </h1>
                 </div>
-              ))}
-            </div>
+                <button
+                  onClick={() => navigate("/polls/create")}
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-opacity hover:opacity-90"
+                  style={{
+                    background: "hsl(var(--foreground))",
+                    color: "hsl(var(--background))",
+                  }}
+                >
+                  <IconPlus size={15} />
+                  New poll
+                </button>
+              </div>
 
-            <div className="flex items-center justify-between mb-5 gap-4">
-              <div className="flex items-center gap-1 rounded-[6px] p-0.5 bg-muted shadow-m">
-                {TABS.map((tab) => (
-                  <button
-                    key={tab.key}
-                    onClick={() => setFilter(tab.key)}
-                    className={`px-3 py-1 rounded-[4px] text-xs font-medium transition-all text-muted-foreground hover:text-foreground/80 hover:bg-accent-foreground ${
-                      filter === tab.key
-                        ? "bg-background text-foreground hover:bg-background"
-                        : ""
-                    }`}
+              <div className="grid grid-cols-3 gap-4 mb-10">
+                {[
+                  { label: "Total polls", value: counts.total },
+                  { label: "Active now", value: counts.active },
+                  { label: "Total responses", value: counts.responses },
+                ].map((s) => (
+                  <div
+                    key={s.label}
+                    className="rounded-xl bg-card shadow-m sadow-black/5 ring-1 ring-black/5 py-4 px-5"
                   >
-                    {tab.label}
-                  </button>
+                    <p className="text-2xl font-semibold tracking-tight">
+                      {s.value}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      {s.label}
+                    </p>
+                  </div>
                 ))}
               </div>
 
-              <div className="relative">
-                <IconSearch
-                  size={14}
-                  className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
-                />
-                <input
-                  type="text"
-                  placeholder="Search polls..."
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  className="pl-8 pr-3 py-1.5 text-xs rounded-lg bg-card text-foreground placeholder:text-muted-foreground/50 outline-none focus:border focus:border-foreground/20 transition-colors w-48 shadow-m shadow-black/5 ring-1 ring-black/5"
-                />
-              </div>
-            </div>
+              <div className="flex items-center justify-between mb-5 gap-4">
+                <div className="flex items-center gap-1 rounded-[6px] p-0.5 bg-muted shadow-m">
+                  {TABS.map((tab) => (
+                    <button
+                      key={tab.key}
+                      onClick={() => setFilter(tab.key)}
+                      className={`px-3 py-1 rounded-[4px] text-xs font-medium transition-all text-muted-foreground hover:text-foreground/80 hover:bg-accent-foreground ${
+                        filter === tab.key
+                          ? "bg-background text-foreground hover:bg-background"
+                          : ""
+                      }`}
+                    >
+                      {tab.label}
+                    </button>
+                  ))}
+                </div>
 
-            {loading ? (
-              <div className="py-20 text-center text-sm text-muted-foreground">
-                Loading polls...
-              </div>
-            ) : filtered.length === 0 ? (
-              <EmptyState hasPolls={polls.length > 0} />
-            ) : (
-              <div className="flex flex-col gap-3">
-                {filtered.map((poll, i) => (
-                  <PollRow
-                    key={poll.id}
-                    poll={poll}
-                    index={i}
-                    onDeleted={() =>
-                      setPolls((current) =>
-                        current.filter((item) => item.id !== poll.id),
-                      )
-                    }
+                <div className="relative">
+                  <IconSearch
+                    size={14}
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
                   />
-                ))}
+                  <input
+                    type="text"
+                    placeholder="Search polls..."
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    className="pl-8 pr-3 py-1.5 text-xs rounded-lg bg-card text-foreground placeholder:text-muted-foreground/50 outline-none focus:border focus:border-foreground/20 transition-colors w-48 shadow-m shadow-black/5 ring-1 ring-black/5"
+                  />
+                </div>
               </div>
-            )}
-          </div>
+
+              {loading ? (
+                <div className="py-20 text-center text-sm text-muted-foreground">
+                  Loading polls...
+                </div>
+              ) : filtered.length === 0 ? (
+                <EmptyState hasPolls={polls.length > 0} />
+              ) : (
+                <div className="flex flex-col gap-3">
+                  {filtered.map((poll, i) => (
+                    <PollRow
+                      key={poll.id}
+                      poll={poll}
+                      index={i}
+                      onViewAnalytics={handleViewAnalytics}
+                      onDeleted={() =>
+                        setPolls((current) =>
+                          current.filter((item) => item.id !== poll.id),
+                        )
+                      }
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {currentTab === "analytics" && <Analytics pollId={analyticsId} />}
         </main>
       </div>
     </div>
