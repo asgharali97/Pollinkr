@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { IconChartBar } from "@tabler/icons-react";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { IconChartBar, IconLayoutDashboard } from "@tabler/icons-react";
 import { useAuthStore } from "@/store/auth.store";
 import {
   Popover,
@@ -22,7 +22,9 @@ function SidebarLink({
   return (
     <Link
       to={to}
-      className={`flex items-center gap-2.5 px-2 py-2 rounded-lg text-sm transition-colors hover:bg-card hover:text-foreground/80 ${active ? "text-foreground bg-muted hover:bg-muted" : ""}`}
+      className={`flex items-center gap-2.5 rounded-lg px-2 py-2 text-sm transition-colors hover:bg-card hover:text-foreground/80 ${
+        active ? "bg-muted text-foreground hover:bg-muted" : ""
+      }`}
     >
       {icon}
       {label}
@@ -34,7 +36,12 @@ function Sidebar() {
   const user = useAuthStore((s) => s.user);
   const clearAuth = useAuthStore((s) => s.clearAuth);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [popoverOpen, setPopoverOpen] = useState(false);
+
+  const currentTab = searchParams.get("tab") || "polls";
+  const isDashboard = currentTab === "polls" || !searchParams.get("tab");
+  const isAnalytics = currentTab === "analytics";
 
   const handleSignout = () => {
     clearAuth();
@@ -42,44 +49,54 @@ function Sidebar() {
   };
 
   return (
-    <aside className="fixed left-0 top-0 h-full w-60 border-r border-border flex flex-col py-6 px-4">
+    <aside className="fixed left-0 top-0 flex h-full w-60 flex-col border-r border-border px-4 py-6">
       <Link
         to="/"
-        className="text-sm font-semibold tracking-tight text-foreground px-2 mb-8 block"
+        className="mb-8 block px-2 text-sm font-semibold tracking-tight text-foreground"
       >
         Pollinkr
       </Link>
 
-      <nav className="flex flex-col gap-4 flex-1 ">
+      <nav className="flex flex-1 flex-col gap-1" aria-label="Main">
         <SidebarLink
-          active={true}
+          active={isDashboard}
           label="Dashboard"
-          icon={<IconChartBar size={15} />}
+          icon={<IconLayoutDashboard size={15} aria-hidden />}
           to="/dashboard"
+        />
+        <SidebarLink
+          active={isAnalytics}
+          label="Analytics"
+          icon={<IconChartBar size={15} aria-hidden />}
+          to="/dashboard?tab=analytics"
         />
       </nav>
 
-      <div className="flex flex-col gap-3 px-2 mt-auto pt-6 -mx-4 border-t border-border border-dashed">
+      <div className="-mx-4 mt-auto flex flex-col gap-3 border-t border-dashed border-border px-2 pt-6">
         <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
           <PopoverTrigger asChild>
-            <button className="flex items-center gap-2.5 cursor-pointer hover:opacity-80 transition-opacity">
-              <div className="w-7 h-7 rounded-full bg-muted flex items-center justify-center text-xs font-semibold text-foreground">
+            <button
+              type="button"
+              className="flex cursor-pointer items-center gap-2.5 transition-opacity hover:opacity-80"
+            >
+              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-muted text-xs font-semibold text-foreground">
                 {user?.name.slice(0, 1)}
               </div>
-              <div className="flex-1 flex flex-col items-start">
-                <p className="text-xs font-medium text-foreground truncate">
+              <div className="flex flex-1 flex-col items-start">
+                <p className="truncate text-xs font-medium text-foreground">
                   {user?.name}
                 </p>
-                <p className="text-xs text-muted-foreground truncate">
+                <p className="truncate text-xs text-muted-foreground">
                   {user?.email}
                 </p>
               </div>
             </button>
           </PopoverTrigger>
-          <PopoverContent side="right" className="w-46 py-2 rounded-lg">
+          <PopoverContent side="right" className="w-46 rounded-lg py-2">
             <button
+              type="button"
               onClick={handleSignout}
-              className="w-full flex items-center gap-2 px-3 py-1 rounded text-sm text-muted-foreground hover:text-red-400 transition-colors cursor-pointer"
+              className="flex w-full cursor-pointer items-center gap-2 rounded px-3 py-1 text-sm text-muted-foreground transition-colors hover:text-red-400"
             >
               Sign out
             </button>

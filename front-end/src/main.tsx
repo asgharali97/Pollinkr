@@ -15,8 +15,6 @@ import Signup from "@/pages/Signup";
 import Dashboard from "@/pages/Dashboard";
 import CreatePoll from "@/pages/CreatePoll";
 import PollResponse from "@/pages/PollResponse";
-import Analytics from "@/pages/Analytics";
-import Analytic from "@/pages/Analytic";
 import PublishedResults from "@/pages/PublishedResults";
 import NotFound from "@/pages/NotFound";
 import { useAuthStore } from "@/store/auth.store";
@@ -65,8 +63,11 @@ const router = createBrowserRouter([
           { path: "dashboard", element: <Dashboard /> },
           { path: "polls/create", element: <CreatePoll /> },
           { path: "polls/:id/edit", element: <CreatePoll /> },
-          { path: "polls/:id/analytics", element: <Analytics /> },
-          { path: "polls/:id/analytic", element: <Analytic /> },
+          // Backward compatibility redirect for old analytics route
+          {
+            path: "polls/:id/analytics",
+            element: <Navigate to={`/dashboard?tab=analytics&pollId=:id`} replace />,
+          },
         ],
       },
 

@@ -42,14 +42,16 @@
   --shadow-l: var(--shadow-l);
   --shadow-s: var(--shadow-s);
   --shadow-chart: var(--shadow-chart);
+  --shadow-chart-1: var(--shadow-chart-1);
+  --shadow-card: var(--shadow-card);
   --color-primary-light-1: var(--primary-light-1);
   --color-primary-light-2: var(--primary-light-2);
   --color-primary-light-3: var(--primary-light-3);
 }
 :root {
-  --background: oklch(1 0 0);
+  --background: oklch(99.107% 0.00011 271.152);
   --foreground: oklch(0.145 0 0);
-  --card: oklch(0.98 0 0);
+  --card: oklch(100% 0.00011 271.152);
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
@@ -93,6 +95,8 @@
     inset 0px 2px 4px #ffffff80, 1px 6px 8px #00000030, 2px 8px 12px #00000015;
   --shadow-chart:
     inset 0px 2px 4px #ffffff80, 0px 4px 8px #ffffff70, 0px 8px 12px #ffffff60;
+  --shadow-chart-1: inset 0 .75px 0 0 #ffffff08, inset 0 0 0 .75px #ffffff08, 0 0 0 .75px #0000001a, 0 2px 2px 0 #0000001a, 0 4px 4px 0 #0000001a, 0 8px 8px 0 #0000001a;
+  --shadow-card: 0px 0px 0px .5px #0000000f, 0px .5px 2px -.5px #0000000f, 0px 1px 4px 0px #0000000a;
 }
 
 .dark {
@@ -183,4 +187,11 @@
 html,
 body {
   font-family: "Inter", sans-serif;
+}
+
+.color{
+  --primary-light-1: #74d4ff;
+  --primary-light-2: #ff8903;
+  --primary-light-3: #9ae600;
+  --primary-light-4: #7c86ff;
 }

@@ -10,7 +10,7 @@ import type { FilterTab, Poll } from "@/types/index";
 import { PollRow } from "./PollRow";
 import { EmptyState } from "./EmptyState";
 import type { PollUpdatePayload } from "@/types/index";
-import Analytics from "../Poll/Analytics";
+import Analytics from "../Poll/analytics/Analytics";
 
 const TABS: { key: FilterTab; label: string }[] = [
   { key: "all", label: "All" },
@@ -137,7 +137,7 @@ export default function Dashboard() {
                 ].map((s) => (
                   <div
                     key={s.label}
-                    className="rounded-xl bg-card shadow-m sadow-black/5 ring-1 ring-black/5 py-4 px-5"
+                    className="rounded-xl shadow-m sadow-black/5 ring-1 ring-black/5 py-4 px-5"
                   >
                     <p className="text-2xl font-semibold tracking-tight">
                       {s.value}
@@ -150,7 +150,7 @@ export default function Dashboard() {
               </div>
 
               <div className="flex items-center justify-between mb-5 gap-4">
-                <div className="flex items-center gap-1 rounded-[6px] p-0.5 bg-muted shadow-m">
+                <div className="flex items-center gap-1 rounded-[6px] p-0.5 bg-muted shadow-m ring-1 ring-muted-foreground/20">
                   {TABS.map((tab) => (
                     <button
                       key={tab.key}
@@ -169,14 +169,14 @@ export default function Dashboard() {
                 <div className="relative">
                   <IconSearch
                     size={14}
-                    className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground"
                   />
                   <input
                     type="text"
                     placeholder="Search polls..."
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    className="pl-8 pr-3 py-1.5 text-xs rounded-lg bg-card text-foreground placeholder:text-muted-foreground/50 outline-none focus:border focus:border-foreground/20 transition-colors w-48 shadow-m shadow-black/5 ring-1 ring-black/5"
+                    className="pl-8 pr-3 py-1.5 text-xs rounded-lg bg-card text-foreground placeholder:text-muted-foreground/50 outline-none w-48 shadow-black/5 ring-1 ring-muted-foreground/40 active:ring-muted-foreground focus:ring-muted-foreground"
                   />
                 </div>
               </div>
@@ -207,7 +207,9 @@ export default function Dashboard() {
             </div>
           )}
 
-          {currentTab === "analytics" && <Analytics pollId={analyticsId} />}
+          {currentTab === "analytics" && (
+            <Analytics pollId={analyticsId} />
+          )}
         </main>
       </div>
     </div>
