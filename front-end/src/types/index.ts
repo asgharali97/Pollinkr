@@ -1,4 +1,3 @@
-
 export type PollStatus = "draft" | "active" | "expired" | "published";
 
 export interface Poll {
@@ -12,7 +11,7 @@ export interface Poll {
   isAnonymous: boolean;
   shareId: string;
 }
-    
+
 export type PollUpdatePayload = {
   poll: {
     id: string;
@@ -37,4 +36,51 @@ export type PublicPoll = {
     mandatory: boolean;
     options: { id: string; text: string }[];
   }[];
+};
+
+export type AnalyticsOption = {
+  id: string;
+  key: string;
+  label: string;
+  count: number;
+};
+
+export type AnalyticsQuestion = {
+  id: string;
+  text: string;
+  mandatory: boolean;
+  totalAnswers: number;
+  options: AnalyticsOption[];
+};
+
+export type PollAnalytics = {
+  poll: {
+    id: string;
+    shareId: string;
+    title: string;
+    status: PollStatus;
+    creatorId: string;
+    expiresAt: string | null;
+    totalResponses: number;
+    isAnonymous: boolean;
+    participationRate: number;
+    questionCount: number;
+    /** ISO timestamps for each response, ordered chronologically */
+    submittedAt: string[];
+  };
+  questions: AnalyticsQuestion[];
+};
+
+export type ResponseActivityPoint = {
+  date: string;
+  label: string;
+  responses: number;
+};
+
+export type RankedAnswer = {
+  key: string;
+  label: string;
+  count: number;
+  percentage: number;
+  color: string;
 };

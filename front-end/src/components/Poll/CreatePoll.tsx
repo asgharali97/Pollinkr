@@ -116,7 +116,7 @@ export default function CreatePoll() {
       reset({
         title: pollData.poll.title,
         description: pollData.poll.description || "",
-        anonymous: pollData.poll.anonymous,
+        anonymous: pollData.poll.isAnonymous,
         expiresAt: pollData.poll.expiresAt || "",
         questions: pollData.poll.questions.map((q) => ({
           id: q.id,

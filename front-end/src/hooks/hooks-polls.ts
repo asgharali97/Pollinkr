@@ -141,11 +141,12 @@ export const useDeletePoll = (id: string) => {
     },
   });
 };
-export const usePublishResults = (id: string) => {
+export const usePublishResults = (id?: string) => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async () => {
+      if (!id) throw new Error("Poll ID is required");
       const res = await api.post<ApiEnvelope<{ poll: Poll }>>(
         `/polls/${id}/publish-results`,
       );
