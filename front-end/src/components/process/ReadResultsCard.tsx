@@ -33,7 +33,7 @@ const StatusBar = ({
   const activeTiles = Math.round((percentage / 100) * responsiveTileCount);
 
   return (
-    <div className={`flex min-w-0 overflow-hidden md:ite items-center gap-1.5 ${className}`}>
+    <div className={`flex min-w-2 overflow-hidden items-center gap-1.5 ${className}`}>
       {Array.from({ length: responsiveTileCount }).map((_, index) => (
         <div
           key={index}
@@ -112,7 +112,7 @@ const ReadResultsCard = () => {
               <div className="mt-3">
                 <StatusBar
                   percentage={result.percentage}
-                  tileCount={24}
+                  tileCount={18}
                   tileClassName={
                     index === 0 ? "bg-primary-light-2/90 shadow-chart shadow-black/5 ring-1 ring-primary-light-2/90" : "bg-primary-light-2/70 shadow-chart shadow-black/5 ring-1 ring-primary-light-2/80"
                   }

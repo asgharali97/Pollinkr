@@ -22,7 +22,7 @@ import type { RectRadius } from "recharts/types/shape/Rectangle";
 import { motion } from "motion/react";
 
 // Constants
-const DEFAULT_BAR_RADIUS = 2;
+const DEFAULT_BAR_RADIUS = 4;
 const LOADING_BAR_DATA_KEY = "loading";
 const LOADING_ANIMATION_DURATION = 2000; // in milliseconds
 

@@ -18,7 +18,9 @@ type QuestionSummary = {
 };
 
 export async function buildPollAnalytics(poll: PollDocument) {
-  const responses = await PollResponse.find({ poll: poll._id }).select("answers").lean();
+  const responses = await PollResponse.find({ poll: poll._id })
+    .select("answers submittedAt")
+    .lean();
   const questionMap = buildQuestionMap(poll.questions);
 
   for (const response of responses) {
@@ -41,7 +43,17 @@ export async function buildPollAnalytics(poll: PollDocument) {
   const participationRate =
     poll.questions.length === 0 || poll.responseCount === 0
       ? 0
-      : Math.round((answeredSlots / (poll.questions.length * poll.responseCount)) * 100);
+      : Math.round(
+          (answeredSlots / (poll.questions.length * poll.responseCount)) * 100
+        );
+
+  const submittedAt = responses
+    .map((response) => response.submittedAt)
+    .filter((value): value is Date => value instanceof Date)
+    .map((value) => value.toISOString())
+    .sort(
+      (a, b) => new Date(a).getTime() - new Date(b).getTime()
+    );
 
   return {
     poll: {
@@ -58,6 +70,7 @@ export async function buildPollAnalytics(poll: PollDocument) {
       responseMode: poll.responseMode,
       questionCount: poll.questions.length,
       participationRate,
+      submittedAt,
     },
     questions: Array.from(questionMap.values()),
   };

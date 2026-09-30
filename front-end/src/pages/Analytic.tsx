@@ -1,4 +1,4 @@
-import AnalyticsComponent from "@/components/Poll/analytics/Analytics";
+import AnalyticsComponent from "@/components/Poll/PollAnalytics";
 const Analytics = () => {
   return (
     <>
