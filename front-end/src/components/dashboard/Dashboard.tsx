@@ -137,7 +137,7 @@ export default function Dashboard() {
                 ].map((s) => (
                   <div
                     key={s.label}
-                    className="rounded-xl shadow-m sadow-black/5 ring-1 ring-black/5 py-4 px-5"
+                    className="bg-card rounded-xl shadow-card sadow-black/5 ring-1 ring-black/5 py-4 px-5"
                   >
                     <p className="text-2xl font-semibold tracking-tight">
                       {s.value}
@@ -150,14 +150,14 @@ export default function Dashboard() {
               </div>
 
               <div className="flex items-center justify-between mb-5 gap-4">
-                <div className="flex items-center gap-1 rounded-[6px] p-0.5 bg-muted shadow-m ring-1 ring-muted-foreground/20">
+                <div className="flex items-center gap-1 rounded-md p-0.5 bg-card shadow-card ring-1 ring-black/5">
                   {TABS.map((tab) => (
                     <button
                       key={tab.key}
                       onClick={() => setFilter(tab.key)}
-                      className={`px-3 py-1 rounded-[4px] text-xs font-medium transition-all text-muted-foreground hover:text-foreground/80 hover:bg-accent-foreground ${
+                      className={`px-3 py-1 rounded-sm text-xs font-medium transition-all text-muted-foreground hover:text-foreground/80 hover:bg-muted ${
                         filter === tab.key
-                          ? "bg-background text-foreground hover:bg-background"
+                          ? "bg-accent text-foreground hover:bg-accent"
                           : ""
                       }`}
                     >

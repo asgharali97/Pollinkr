@@ -230,7 +230,7 @@ export default function PollResponse() {
 
         <div className="space-y-5">
           {pollData.questions.map((q, i) => {
-            const isUnanswered = unansweredMandatory.includes(q.id);
+            // const isUnanswered = unansweredMandatory.includes(q.id);
             return (
               <div
                 key={q.id}
