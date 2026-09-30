@@ -1,20 +1,20 @@
 import { useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { IconLock, IconAlertCircle } from "@tabler/icons-react";
+import { IconLock, IconAlertCircle, IconCheck } from "@tabler/icons-react";
 import { useAuthStore } from "@/store/auth.store";
 import { toast } from "sonner";
 import { useGetPublicPoll, useSubmitResponse } from "@/hooks/index";
 import { ExpiryBadge } from "./ExpiryBadge";
 import { StateCard } from "./StateCard";
 import { AuthLoginDialog } from "../AuthLoginDialog";
-
+import Button from '@/components/Button'
 type Answers = Record<string, string>;
 type PageState = "form" | "submitted";
 
 export default function PollResponse() {
   const { shareId } = useParams();
   const navigate = useNavigate();
-  const user = useAuthStore((s) => s.user); 
+  const user = useAuthStore((s) => s.user);
 
   const [answers, setAnswers] = useState<Answers>({});
   const [pageState, setPageState] = useState<PageState>("form");
@@ -24,7 +24,6 @@ export default function PollResponse() {
 
   const { data: pollData, isLoading: pollLoading } = useGetPublicPoll(shareId);
   const submitMutation = useSubmitResponse(shareId!);
-
 
   if (pollLoading) {
     return (
@@ -116,6 +115,7 @@ export default function PollResponse() {
   }
 
   if (pageState === "submitted") {
+    console.log(pageState)
     return (
       <StateCard
         state="submitted"
@@ -144,16 +144,14 @@ export default function PollResponse() {
     setSubmitting(true);
     try {
       const payload = {
-        responses: Object.entries(answers).map(
-          ([questionId, selectedOptionId]) => ({
-            questionId,
-            selectedOptionId,
-          }),
-        ),
+        answers: Object.entries(answers).map(([questionId, optionId]) => ({
+          questionId,
+          optionId,
+        })),
       };
-
       await submitMutation.mutateAsync(payload);
       setPageState("submitted");
+      toast.success("Response submitted");
     } catch (error: any) {
       const message =
         error.response?.data?.message || "Could not submit response";
@@ -181,16 +179,15 @@ export default function PollResponse() {
   return (
     <div className="min-h-screen bg-background font-sans">
       {socketDisconnected && (
-        <div className="border-b border-amber-200 bg-amber-50/50 px-6 py-2">
-          <p className="text-xs text-amber-800">
-            Connection unstable. Your response is still being tracked
-            locally.
+        <div className="border-b shadow-m bg-accent px-6 py-2">
+          <p className="text-xs text-muted-foreground">
+            Connection unstable. Your response is still being tracked locally.
           </p>
         </div>
       )}
 
       <div className="border-b border-border sticky top-0 bg-background/95 backdrop-blur-sm z-10">
-        <div className="max-w-2xl mx-auto px-6 h-14 flex items-center justify-between">
+        <div className="max-w-2xl mx-auto px-6 h-12 flex items-center justify-between">
           <Link
             to="/"
             className="text-sm font-semibold tracking-tight text-foreground"
@@ -201,9 +198,9 @@ export default function PollResponse() {
             <span className="text-xs text-muted-foreground">
               {answeredCount}/{totalCount} answered
             </span>
-            <div className="w-24 h-1 rounded-full bg-border overflow-hidden">
+            <div className="w-24 h-1 rounded-full bg-primary-light-1/80 overflow-hidden shadow-chart ring-1 ring-primary-light-1">
               <div
-                className="h-full bg-foreground rounded-full transition-all duration-300"
+                className="h-full bg-primary-light-2 shadow-chart rounded-full transition-all duration-300"
                 style={{ width: `${progress}%` }}
               />
             </div>
@@ -238,14 +235,11 @@ export default function PollResponse() {
               <div
                 key={q.id}
                 id={`question-${q.id}`}
-                className={`rounded-xl border p-6 transition-colors ${
-                  isUnanswered
-                    ? "border-red-300 bg-red-50/30"
-                    : "border-border bg-card"
-                }`}
+                className={`rounded-xl p-1 shadow-m`}
               >
+                <div className="p-4 rounded-lg bg-card shadow-card">
                 <div className="flex items-start justify-between gap-3 mb-4">
-                  <p className="text-sm font-medium text-foreground leading-snug">
+                  <p className="text-sm font-medium text-foreground/90">
                     <span className="text-muted-foreground mr-2">{i + 1}.</span>
                     {q.text}
                   </p>
@@ -267,22 +261,22 @@ export default function PollResponse() {
                           setAnswers((prev) => ({ ...prev, [q.id]: opt.id }));
                           setValidationError(null);
                         }}
-                        className={`w-full text-left px-4 py-3 rounded-lg border text-sm transition-all cursor-pointer ${
+                        className={`w-full text-left px-3 py-2 rounded-xl shadow-card shadow-black/5 ring-1 ring-black/5 text-sm transition-all cursor-pointer ${
                           selected
-                            ? "border-foreground bg-foreground text-background"
-                            : "border-border bg-background text-foreground hover:border-foreground/30"
+                            ? ""
+                            : "bg-accent/40 text-foreground hover:bg-accent/80  hover:shadow-m hover:ring-black/10"
                         }`}
                       >
                         <span className="flex items-center gap-3">
                           <span
-                            className={`w-4 h-4 rounded-full border flex-shrink-0 flex items-center justify-center transition-colors ${
+                            className={`w-4 h-4 rounded-sm shadow-card ring-1 ring-primary-light-2 flex-shrink-0 flex items-center justify-center transition-colors ${
                               selected
-                                ? "border-background bg-background"
-                                : "border-border"
+                                ? "bg-primary-light-2 "
+                                : "border-border hover:bg-primary-light-1/50 "
                             }`}
                           >
                             {selected && (
-                              <span className="w-2 h-2 rounded-full bg-foreground" />
+                              <IconCheck size={13} className="text-background"/>
                             )}
                           </span>
                           {opt.text}
@@ -292,12 +286,13 @@ export default function PollResponse() {
                   })}
                 </div>
 
-                {isUnanswered && (
+                {/* {isUnanswered && (
                   <p className="flex items-center gap-1.5 text-xs text-red-500 mt-3">
                     <IconAlertCircle size={12} />
                     This question is required
                   </p>
-                )}
+                )} */}
+              </div>
               </div>
             );
           })}
@@ -324,20 +319,20 @@ export default function PollResponse() {
               </span>
             )}
           </p>
-          <button
+          <Button
             type="button"
             onClick={handleSubmit}
             disabled={submitting || submitMutation.isPending}
-            className={`px-6 py-2.5 rounded-lg text-sm font-medium transition-all cursor-pointer ${
+            className={`${
               submitting || submitMutation.isPending
-                ? "bg-muted text-muted-foreground cursor-not-allowed"
-                : "bg-foreground text-background hover:opacity-90"
+                ? "cursor-not-allowed"
+                : ""
             }`}
           >
             {submitting || submitMutation.isPending
               ? "Submitting..."
               : "Submit response"}
-          </button>
+          </Button>
         </div>
 
         <p className="text-center text-xs text-muted-foreground mt-10">

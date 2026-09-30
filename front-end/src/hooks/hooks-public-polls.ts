@@ -3,9 +3,9 @@ import api, { type ApiEnvelope } from "@/lib/api";
 import type { Poll } from "./hooks-polls";
 
 export interface SubmitResponsePayload {
-  responses: {
+  answers: {
     questionId: string;
-    selectedOptionId: string;
+    optionId: string;
   }[];
 }
 

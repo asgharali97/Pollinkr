@@ -178,7 +178,7 @@ export default function CreatePoll() {
         };
         await updateMutation.mutateAsync(updatePayload);
         toast.success("Poll updated");
-        navigate(`/polls/${id}/analytics`);
+        navigate(`/dashboard?tab=analytics&pollId=${id}`);
       } else {
         const createPayload: CreatePollPayload = {
           title: data.title,
@@ -199,7 +199,7 @@ export default function CreatePoll() {
           mode === "publish" ? "Poll published" : "Poll saved as draft",
         );
         // @ts-expect-error `id` is defined
-        navigate(`/polls/${response.id}/analytics`);
+        navigate(`/dashboard?tab=analytics&pollId=${response.id}`);
       }
     } catch (error: any) {
       const message =
