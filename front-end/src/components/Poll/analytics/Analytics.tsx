@@ -165,7 +165,6 @@ export default function Analytics({ pollId }: { pollId?: string | null }) {
   };
 
   const { poll, questions } = analyticsData;
-  const submittedAt = poll.submittedAt ?? [];
 
   return (
     <div className="font-sans">
