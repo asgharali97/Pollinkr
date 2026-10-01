@@ -360,6 +360,7 @@ type BarShapeProps = {
   fillOpacity?: number;
   dataKey?: string;
   index?: number;
+  payload?: Record<string, unknown>;
   [key: string]: unknown;
 };
 
@@ -404,6 +405,7 @@ const CustomBar = (props: CustomBarProps) => {
   const index = typeof props.index === "number" ? props.index : -1;
   const isLastBar = enableBufferBar && dataLength > 0 && index === dataLength - 1;
   const isStripped = barVariant === "stripped";
+  const rowFill = props.payload?.fill;
 
   const getFill = () => {
     // Buffer bar: last bar always uses hatched pattern
@@ -423,7 +425,7 @@ const CustomBar = (props: CustomBarProps) => {
       case "stripped":
         return `url(#${chartId}-stripped-${dataKey})`;
       default:
-        return `url(#${chartId}-colors-${dataKey})`;
+        return typeof rowFill === "string" ? rowFill : `url(#${chartId}-colors-${dataKey})`;
     }
   };
 

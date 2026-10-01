@@ -1,13 +1,8 @@
 import { useMemo } from "react";
-import { Bar, BarChart, Cell, XAxis, YAxis } from "recharts";
+import { type ChartConfig } from "@/components/evilcharts/ui/chart";
 import {
-  ChartContainer,
-  type ChartConfig,
-} from "@/components/evilcharts/ui/chart";
-import {
-  ChartTooltip,
-  ChartTooltipContent,
-} from "@/components/evilcharts/ui/tooltip";
+  EvilBarChart,
+} from "@/components/evilcharts/charts/bar-chart";
 import type { AnalyticsOption } from "@/types/index";
 import { rankAnswers } from "./analytics.utils";
 
@@ -21,14 +16,14 @@ type ChartRow = {
   count: number;
   percentage: number;
   fill: string;
-};
+}; 
 
 const chartConfig = {
   count: {
     label: "Responses",
     colors: {
-      light: ["var(--chart-5)"],
-      dark: ["var(--chart-1)"],
+      light: ["var(--primary-light-3)"],
+      dark: ["var(--primary-light-1)"],
     },
   },
 } satisfies ChartConfig;
@@ -59,7 +54,6 @@ export function AnswerDistributionChart({
       </p>
     );
   }
-  console.log(data)
   return (
     <div className="space-y-4">
       <div
@@ -68,58 +62,15 @@ export function AnswerDistributionChart({
         role="img"
         aria-label="Answer distribution chart"
       >
-        <ChartContainer
-          config={chartConfig}
-          className="aspect-auto! h-full w-full"
+        <EvilBarChart
+          chartConfig={chartConfig}
+          className="h-full w-full"
+          data={data}
+          xDataKey="label"
+          layout="horizontal"
+          barVariant="hatched"
         >
-          <BarChart
-            accessibilityLayer
-            data={data}
-            layout="vertical"
-            margin={{ top: 4, right: 8, left: 0, bottom: 4 }}
-            barCategoryGap="20%"
-          >
-            <XAxis type="number" hide domain={[0, "dataMax"]} />
-            <YAxis
-              type="category"
-              dataKey="label"
-              width={100}
-              tickLine={true}
-              axisLine={true}
-              tickMargin={20}
-              tick={{ fontSize: 12 }}
-              interval={0}
-              className='border text-red-200'
-            />
-            <ChartTooltip
-              cursor={{ fill: "var(--muted)", opacity: 0.5 }}
-              content={
-                <ChartTooltipContent
-                  hideLabel
-                  formatter={(value, _name, item) => {
-                    const row = item.payload as ChartRow | undefined;
-                    return (
-                      <div className="flex w-full items-center justify-between gap-4 leading-none">
-                        <span className="text-muted-foreground">
-                          {row?.label ?? "Responses"}
-                        </span>
-                        <span className="font-mono font-medium tabular-nums text-foreground">
-                          {Number(value).toLocaleString()}
-                          {row ? ` · ${row.percentage}%` : ""}
-                        </span>
-                      </div>
-                    );
-                  }}
-                />
-              }
-            />
-            <Bar dataKey="count" radius={4} maxBarSize={26}>
-              {data.map((entry) => (
-                <Cell key={entry.key} fill={entry.fill} />
-              ))}
-            </Bar>
-          </BarChart>
-        </ChartContainer>
+        </EvilBarChart>
       </div>
 
       <ul className="space-y-1" aria-label="Answer counts">

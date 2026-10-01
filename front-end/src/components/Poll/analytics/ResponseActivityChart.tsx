@@ -26,6 +26,7 @@ export function ResponseActivityChart({
     () => buildResponseActivity(submittedAt),
     [submittedAt],
   );
+  console.log(data);
 
   return (
     <section

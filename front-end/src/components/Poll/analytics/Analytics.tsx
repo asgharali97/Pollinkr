@@ -12,7 +12,6 @@ import { useGetAnalytics, usePublishResults } from "@/hooks";
 import { useAuthStore } from "@/store/auth.store";
 import type { PollAnalytics } from "@/types/index";
 import { AnalyticsOverview } from "./AnalyticsOverview";
-import { ResponseActivityChart } from "./ResponseActivityChart";
 import { QuestionResult } from "./QuestionResult";
 import { getTimeLeft } from "./analytics.utils";
 import DraftView from "./DraftView";
@@ -245,7 +244,6 @@ export default function Analytics({ pollId }: { pollId?: string | null }) {
             live={liveIndicator}
           />
 
-          <ResponseActivityChart submittedAt={submittedAt} />
 
           <section
             aria-labelledby="question-results-heading"

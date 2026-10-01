@@ -5,11 +5,8 @@ import type {
   ResponseActivityPoint,
 } from "@/types/index";
 
-export const ANSWER_NEUTRAL_RAMP = [
-  "var(--chart-5)",
-  "var(--chart-4)",
-  "var(--chart-3)",
-  "var(--chart-2)",
+export const ANSWER_HIGHLIGHT_COLORS = [
+  "var(--primary-light-1)",
   "var(--chart-1)",
 ] as const;
 
@@ -45,10 +42,9 @@ export function rankAnswers(options: AnalyticsOption[]): RankedAnswer[] {
       count: option.count,
       percentage:
         total === 0 ? 0 : Math.round((option.count / total) * 100),
-      color:
-        ANSWER_NEUTRAL_RAMP[
-          Math.min(index, ANSWER_NEUTRAL_RAMP.length - 1)
-        ],
+      color: ANSWER_HIGHLIGHT_COLORS[
+        Math.min(index, ANSWER_HIGHLIGHT_COLORS.length - 1)
+      ],
     }));
 }
 
