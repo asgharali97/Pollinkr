@@ -197,7 +197,7 @@ export default function Analytics({ pollId }: { pollId?: string | null }) {
                 <IconClock size={11} aria-hidden />
                 {getTimeLeft(poll.expiresAt)}
               </span>
-              {poll.isAnonymous && (
+              {poll.anonymous && (
                 <span className="text-xs text-muted-foreground">Anonymous</span>
               )}
             </div>

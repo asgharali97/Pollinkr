@@ -98,7 +98,7 @@ export function PollRow({
           >
             {status.label}
           </span>
-          {poll.isAnonymous && (
+          {poll.anonymous && (
             <span className="text-xs text-muted-foreground/60">Anonymous</span>
           )}
         </div>

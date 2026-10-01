@@ -20,8 +20,7 @@ export type RespondentContext = {
 };
 
 export async function createPoll(userId: string, payload: CreatePollDto) {
-  const responseMode =
-    payload.responseMode ?? (payload.anonymous ? "anonymous" : "authenticated");
+  const responseMode = payload.anonymous ? "anonymous" : "authenticated";
   const status = payload.status ?? "draft";
   if (status === "active" && !payload.expiresAt) {
     throw ApiError.badRequest("Published polls require an expiry date");
@@ -42,12 +41,18 @@ export async function createPoll(userId: string, payload: CreatePollDto) {
   return serializeCreatorPoll(poll);
 }
 
-export async function listCreatorPolls(userId: string, query: ListPollsQueryDto) {
+export async function listCreatorPolls(
+  userId: string,
+  query: ListPollsQueryDto,
+) {
   await expireDuePolls(userId);
 
-  const filter: Record<string, unknown> = { creator: new Types.ObjectId(userId) };
+  const filter: Record<string, unknown> = {
+    creator: new Types.ObjectId(userId),
+  };
   if (query.status) filter.status = query.status;
-  if (query.search) filter.title = { $regex: escapeRegex(query.search), $options: "i" };
+  if (query.search)
+    filter.title = { $regex: escapeRegex(query.search), $options: "i" };
 
   const polls = await Poll.find(filter).sort({ createdAt: -1 });
   return polls.map(serializePollListItem);
@@ -63,7 +68,7 @@ export async function getCreatorPoll(userId: string, pollId: string) {
 export async function updatePoll(
   userId: string,
   pollId: string,
-  payload: UpdatePollDto
+  payload: UpdatePollDto,
 ) {
   const poll = await findOwnedPoll(userId, pollId);
   await syncExpiredPoll(poll);
@@ -73,23 +78,24 @@ export async function updatePoll(
   }
 
   const hasStructuralChanges =
-    payload.questions !== undefined || payload.responseMode !== undefined;
+    payload.questions !== undefined || payload.anonymous !== undefined;
 
   if (hasStructuralChanges && poll.responseCount > 0) {
     throw ApiError.badRequest(
-      "Questions, options, and response mode cannot be changed after responses start"
+      "Questions, options, and response mode cannot be changed after responses start",
     );
   }
 
   if (payload.title !== undefined) poll.title = payload.title;
   if (payload.description !== undefined) poll.description = payload.description;
-  if (payload.responseMode !== undefined) poll.responseMode = payload.responseMode;
+  if (payload.anonymous !== undefined) {
+    poll.responseMode = payload.anonymous ? "anonymous" : "authenticated";
+  }
   if (payload.expiresAt !== undefined) poll.expiresAt = payload.expiresAt;
   if (payload.status !== undefined) poll.status = payload.status;
   if (payload.questions !== undefined) {
     poll.questions = payload.questions as PollDocument["questions"];
   }
-
 
   await poll.save();
   return serializeCreatorPoll(poll);
@@ -173,7 +179,7 @@ export async function getPublicPoll(shareId: string) {
 export async function submitPollResponse(
   shareId: string,
   payload: SubmitResponseDto,
-  context: RespondentContext
+  context: RespondentContext,
 ) {
   const poll = await Poll.findOne({ shareId });
   if (!poll) throw ApiError.notFound("Poll not found");
@@ -181,9 +187,7 @@ export async function submitPollResponse(
   await syncExpiredPoll(poll);
 
   if (poll.status !== "active") {
-    throw ApiError.badRequest(
-      `This poll is no longer accepting responses`
-    );
+    throw ApiError.badRequest(`This poll is no longer accepting responses`);
   }
 
   if (poll.responseMode === "authenticated" && !context.userId) {
@@ -215,7 +219,9 @@ export async function submitPollResponse(
     });
   } catch (error) {
     if (isDuplicateKeyError(error)) {
-      throw ApiError.conflict("You have already submitted a response to this poll");
+      throw ApiError.conflict(
+        "You have already submitted a response to this poll",
+      );
     }
 
     throw error;
@@ -260,15 +266,17 @@ async function expireDuePolls(userId: string) {
       status: "active",
       expiresAt: { $lte: new Date() },
     },
-    { $set: { status: "expired" } }
+    { $set: { status: "expired" } },
   );
 }
 
 function validateAnswersBelongToPoll(
   poll: PollDocument,
-  answers: SubmitResponseDto["answers"]
+  answers: SubmitResponseDto["answers"],
 ) {
-  const answerMap = new Map(answers.map((answer) => [answer.questionId, answer.optionId]));
+  const answerMap = new Map(
+    answers.map((answer) => [answer.questionId, answer.optionId]),
+  );
 
   for (const question of poll.questions) {
     const questionId = question._id.toString();
@@ -281,7 +289,7 @@ function validateAnswersBelongToPoll(
     if (!selectedOptionId) continue;
 
     const optionExists = question.options.some(
-      (option) => option._id.toString() === selectedOptionId
+      (option) => option._id.toString() === selectedOptionId,
     );
 
     if (!optionExists) {
@@ -296,7 +304,10 @@ function validateAnswersBelongToPoll(
   }
 }
 
-function buildRespondentFingerprint(pollId: string, context: RespondentContext) {
+function buildRespondentFingerprint(
+  pollId: string,
+  context: RespondentContext,
+) {
   const ip = context.ip ?? "unknown-ip";
   const userAgent = context.userAgent ?? "unknown-agent";
   return hashValue(`${pollId}:${ip}:${userAgent}`);
@@ -349,7 +360,7 @@ function serializePollListItem(poll: PollDocument) {
     questionCount: poll.questions.length,
     expiresAt: poll.expiresAt,
     createdAt: poll.createdAt,
-    isAnonymous: poll.responseMode === "anonymous",
+    anonymous: poll.responseMode === "anonymous",
   };
 }
 

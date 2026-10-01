@@ -1,4 +1,4 @@
-import { useFieldArray, useForm, Controller } from "react-hook-form";
+import { useFieldArray, useForm, Controller, type FieldErrors } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useNavigate, useParams } from "react-router-dom";
@@ -105,7 +105,7 @@ export default function CreatePoll() {
     name: "questions",
   });
   const sensors = useSensors(useSensor(PointerSensor));
-
+  console.log(pollData)
   useEffect(() => {
     if (isEdit && pollData) {
       const expiryDate = pollData.poll.expiresAt
@@ -116,7 +116,8 @@ export default function CreatePoll() {
       reset({
         title: pollData.poll.title,
         description: pollData.poll.description || "",
-        anonymous: pollData.poll.isAnonymous,
+        anonymous:
+          pollData.poll.anonymous === true,
         expiresAt: pollData.poll.expiresAt || "",
         questions: pollData.poll.questions.map((q) => ({
           id: q.id,
@@ -157,17 +158,17 @@ export default function CreatePoll() {
     const newIndex = questions.findIndex((q) => q.id === over.id);
     move(oldIndex, newIndex);
   };
+  console.log(isEdit)
 
   const onSubmit = async (data: PollForm, mode: "draft" | "publish") => {
+    console.log('check')
     try {
       const expiresAt = date ? endOfSelectedDay(date).toISOString() : null;
-
       if (isEdit) {
         const updatePayload: UpdatePollPayload = {
           title: data.title,
           description: data.description,
-          isAnonymous: data.anonymous,
-          responseMode: data.anonymous ? "anonymous" : "authenticated",
+          anonymous: data.anonymous,
           expiresAt: expiresAt || undefined,
           status: mode === "publish" ? "active" : "draft",
           questions: data.questions.map((question) => ({
@@ -183,8 +184,7 @@ export default function CreatePoll() {
         const createPayload: CreatePollPayload = {
           title: data.title,
           description: data.description,
-          responseMode: data.anonymous ? "anonymous" : "authenticated",
-          isAnonymous: data.anonymous,
+          anonymous: data.anonymous,
           expiresAt: expiresAt || undefined,
           status: mode === "publish" ? "active" : "draft",
           questions: data.questions.map((question) => ({
@@ -206,6 +206,11 @@ export default function CreatePoll() {
         error.response?.data?.message || error.message || "Could not save poll";
       toast.error(message);
     }
+  };
+
+  const onInvalidSubmit = (formErrors: FieldErrors<PollForm>) => {
+    console.error("Poll form validation failed:", formErrors);
+    toast.error("Please fix the highlighted fields before saving.");
   };
 
   return (
@@ -387,7 +392,7 @@ export default function CreatePoll() {
             <div className="flex items-center gap-3 pt-2 border-t border-border">
               <button
                 type="button"
-                onClick={handleSubmit((data) => onSubmit(data, "draft"))}
+                onClick={handleSubmit((data) => onSubmit(data, "draft"), onInvalidSubmit)}
                 disabled={createMutation.isPending || updateMutation.isPending}
                 className="px-6 py-2.5 rounded-lg shadow-m text-sm text-muted-foreground hover:text-foreground hover:shadow-black/5 hover:ring-1 ring-black/10 transition-colors cursor-pointer disabled:opacity-50"
               >
@@ -395,7 +400,7 @@ export default function CreatePoll() {
               </button>
               <button
                 type="button"
-                onClick={handleSubmit((data) => onSubmit(data, "publish"))}
+                onClick={handleSubmit((data) => onSubmit(data, "publish"), onInvalidSubmit)}
                 disabled={createMutation.isPending || updateMutation.isPending}
                 className="px-6 py-2.5 rounded-lg bg-foreground/90 text-background text-sm font-medium shadow-l cursor-pointer hover:bg-foreground hover:shadow-black/5 hover:ring-1 ring-black/10 transition-colors disabled:opacity-50"
               >

@@ -83,7 +83,7 @@ export default function PollResponse() {
     );
   }
 
-  const requiresAuth = !pollData.isAnonymous;
+  const requiresAuth = !pollData.anonymous;
   const userNotLoggedIn = !user;
   const isBlocked = requiresAuth && userNotLoggedIn;
 
@@ -212,7 +212,7 @@ export default function PollResponse() {
         <div className="mb-10">
           <div className="flex items-center gap-4 mb-4">
             <ExpiryBadge expiresAt={pollData.expiresAt} />
-            {pollData.isAnonymous && (
+            {pollData.anonymous && (
               <span className="text-xs text-muted-foreground">
                 Your response is anonymous
               </span>
@@ -307,7 +307,7 @@ export default function PollResponse() {
 
         <div className="mt-8 flex items-center justify-between">
           <p className="text-xs text-muted-foreground">
-            {pollData.isAnonymous ? (
+            {pollData.anonymous ? (
               <span className="flex items-center gap-1">
                 <IconLock size={11} />
                 Anonymous · not linked to your identity

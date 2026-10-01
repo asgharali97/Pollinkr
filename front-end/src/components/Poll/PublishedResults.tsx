@@ -13,7 +13,7 @@ type ResultsData = {
     description?: string;
     publishedAt: string | null;
     totalResponses: number;
-    isAnonymous: boolean;
+    anonymous: boolean;
   };
   questions: {
     id: string;
@@ -151,7 +151,7 @@ export default function PublishedResults() {
               <IconClock size={12} />
               Published {publishedDate}
             </span>
-            {data.poll.isAnonymous && (
+            {data.poll.anonymous && (
               <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
                 <IconLock size={12} />
                 Anonymous

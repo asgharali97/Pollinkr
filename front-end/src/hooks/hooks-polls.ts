@@ -13,7 +13,7 @@ export interface Poll {
     title: string;
     description?: string;
     status: "draft" | "active" | "expired" | "published";
-    isAnonymous: boolean;
+    anonymous?: boolean;
     expiresAt?: string;
     createdAt: string;
     shareId: string;
@@ -31,8 +31,7 @@ export interface PollListQuery {
 export interface CreatePollPayload {
   title: string;
   description?: string;
-  isAnonymous: boolean;
-  responseMode: "anonymous" | "authenticated";
+  anonymous: boolean;
   expiresAt?: string;
   status: "draft" | "active";
   questions: {
@@ -45,10 +44,9 @@ export interface CreatePollPayload {
 export interface UpdatePollPayload {
   title?: string;
   description?: string;
-  isAnonymous?: boolean;
+  anonymous?: boolean;
   expiresAt?: string;
   status: "draft" | "active" | "expired" | "published";
-  responseMode: "anonymous" | "authenticated";
   questions?: {
     id?: string;
     text: string;

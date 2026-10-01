@@ -25,7 +25,6 @@ const expiresAtSchema = z
 export const createPollDto = z.object({
   title: trimmedText(160),
   description: z.string().trim().max(1200).optional().default(""),
-  responseMode: z.enum(RESPONSE_MODES).optional(),
   anonymous: z.boolean().optional(),
   expiresAt: expiresAtSchema.optional().nullable(),
   questions: z.array(questionDto).min(1).max(50),
@@ -36,7 +35,7 @@ export const createPollDto = z.object({
 export const updatePollDto = z.object({
   title: trimmedText(160).optional(),
   description: z.string().trim().max(1200).optional(),
-  responseMode: z.enum(RESPONSE_MODES).optional(),
+  anonymous: z.boolean().optional(),
   expiresAt: expiresAtSchema.optional().nullable(),
   questions: z.array(questionDto).min(1).max(50).optional(),
   status: z.enum(["draft", "active"]).optional(),

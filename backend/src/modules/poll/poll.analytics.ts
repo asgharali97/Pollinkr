@@ -66,7 +66,7 @@ export async function buildPollAnalytics(poll: PollDocument) {
       expiresAt: poll.expiresAt,
       publishedAt: poll.publishedAt,
       totalResponses: poll.responseCount,
-      isAnonymous: poll.responseMode === "anonymous",
+      anonymous: poll.responseMode === "anonymous",
       responseMode: poll.responseMode,
       questionCount: poll.questions.length,
       participationRate,

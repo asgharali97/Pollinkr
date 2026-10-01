@@ -8,7 +8,7 @@ export interface Poll {
   questionCount: number;
   expiresAt: string | null;
   createdAt: string;
-  isAnonymous: boolean;
+  anonymous: boolean;
   shareId: string;
 }
 
@@ -62,7 +62,7 @@ export type PollAnalytics = {
     creatorId: string;
     expiresAt: string | null;
     totalResponses: number;
-    isAnonymous: boolean;
+    anonymous: boolean;
     participationRate: number;
     questionCount: number;
     /** ISO timestamps for each response, ordered chronologically */
