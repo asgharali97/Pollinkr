@@ -1,6 +1,6 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import api, { type ApiEnvelope } from "@/lib/api";
-import type { Poll } from "./hooks-polls";
+import type { PublicPollResponse } from "@/types/index";
 
 export interface SubmitResponsePayload {
   answers: {
@@ -15,9 +15,10 @@ export const useGetPublicPoll = (shareId?: string) => {
     queryKey: ["public-polls", shareId],
     queryFn: async () => {
       if (!shareId) throw new Error("Share ID is required");
-      const res = await api.get<ApiEnvelope<{ poll: Poll }>>(
+      const res = await api.get<ApiEnvelope<{ poll: PublicPollResponse }>>(
         `/public/polls/${shareId}`,
       );
+      console.log("Fetched public poll:", res.data.data.poll);
       return res.data.data.poll;
     },
     enabled: !!shareId,

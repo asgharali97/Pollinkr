@@ -130,7 +130,7 @@ export default function Analytics({ pollId }: { pollId?: string | null }) {
   }
 
   if (analyticsData.poll.status === "published") {
-    return <PublishedView poll={analyticsData.poll} />;
+    navigate(`/p/${analyticsData.poll.shareId}/results`);
   }
 
   const handlePublishResults = async () => {

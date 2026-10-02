@@ -1,76 +1,32 @@
-import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
-import { IconChartBar, IconClock, IconLock, IconUsers, IconAlertCircle } from "@tabler/icons-react";
-import { toast } from "sonner";
-import { EvilBarChart } from "@/components/evilcharts/charts/bar-chart";
-import { EvilPieChart } from "@/components/evilcharts/charts/pie-chart";
-import { type ChartConfig } from "@/components/evilcharts/ui/chart";
-import api from "@/lib/api";
-
-type ResultsData = {
-  poll: {
-    title: string;
-    description?: string;
-    publishedAt: string | null;
-    totalResponses: number;
-    anonymous: boolean;
-  };
-  questions: {
-    id: string;
-    text: string;
-    mandatory: boolean;
-    totalAnswers: number;
-    options: { key: string; label: string; count: number }[];
-  }[];
-};
-
-const OPTION_COLORS = ["#171717", "#404040", "#737373", "#a3a3a3"];
+import { Link, useNavigate, useParams } from "react-router-dom";
+import {
+  IconClock,
+  IconLock,
+  IconUsers,
+  IconAlertCircle,
+  IconChevronLeft,
+} from "@tabler/icons-react";
+import StatusBadge from "../StatusBadge";
+import { AnalyticsOverview } from "./analytics/AnalyticsOverview";
+import { useGetPublicPoll } from "@/hooks/index";
+import { QuestionResult } from "./analytics/QuestionResult";
+import type {AnalyticsQuestion} from '@/types/index';
 
 export default function PublishedResults() {
-  // NOTE: shareId is the canonical route parameter for public URLs
-  // For debugging/future: this matches /p/:shareId/results (public route)
-  // If refactoring internal routes, use shareId consistently for public-facing results
   const { shareId } = useParams();
+  const { data, isLoading, isError } = useGetPublicPoll(shareId);
+  const navigate = useNavigate();
 
-  const [data, setData] = useState<ResultsData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fetchResults = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const response = await api.get(`/public/polls/${shareId}`);
-
-        // Verify the poll is actually published before rendering results
-        if (response.data.data.mode !== "results") {
-          setError("Results are not published yet");
-          return;
-        }
-
-        setData(response.data.data.poll);
-      } catch (error: any) {
-        const message = error.response?.data?.message || "Could not load results";
-        setError(message);
-        toast.error(message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchResults();
-  }, [shareId]);
-
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center text-sm text-muted-foreground">
         Loading results...
       </div>
     );
   }
-
-  if (error || !data) {
+  const { poll, questions } = data;
+ 
+  if (isError || !data) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center px-6 font-sans">
         <div className="text-center max-w-sm">
@@ -81,7 +37,8 @@ export default function PublishedResults() {
             Results not available
           </h1>
           <p className="text-sm text-muted-foreground leading-relaxed mb-8">
-            {error || "This poll's results are not yet published or don't exist."}
+            {isError ||
+              "This poll's results are not yet published or don't exist."}
           </p>
           <Link
             to="/"
@@ -94,46 +51,47 @@ export default function PublishedResults() {
     );
   }
 
-  const publishedDate = data.poll.publishedAt
-    ? new Date(data.poll.publishedAt).toLocaleDateString("en-US", {
+  const publishedDate = poll.publishedAt
+    ? new Date(poll.publishedAt).toLocaleDateString("en-US", {
         year: "numeric",
         month: "long",
         day: "numeric",
       })
     : "recently";
 
-  const pieData = data.questions.map((q, i) => ({
-    question: `Q${i + 1}`,
-    responses: q.totalAnswers,
-  }));
-
-  const pieConfig: ChartConfig = Object.fromEntries(
-    data.questions.map((_, i) => [
-      `Q${i + 1}`,
-      {
-        label: `Q${i + 1}`,
-        colors: { light: [OPTION_COLORS[i]], dark: [OPTION_COLORS[i]] },
-      },
-    ]),
-  );
+  const handleBack = () => {
+    navigate('/dashboard');
+  };
 
   return (
     <div className="min-h-screen bg-background font-sans">
       <div className="border-b border-border sticky top-0 bg-background/95 backdrop-blur-sm z-10">
-        <div className="max-w-2xl mx-auto px-6 h-14 flex items-center justify-between">
-          <Link to="/" className="text-sm font-semibold tracking-tight text-foreground">
+        <div className="mx-auto max-w-4xl px-6 h-12 flex items-center justify-between">
+          <Link
+            to="/"
+            className="text-sm font-semibold tracking-tight text-foreground"
+          >
             Pollinkr
           </Link>
-          <div className="text-xs h-8 w-[7.8rem] flex justify-center items-center p-1 bg-muted rounded-xl shadow-m ring-1 ring-black/5">
-            <span className="h-full w-full bg-background rounded-lg py-1 px-2 shadow-m">
-              Results published
-            </span>
-          </div>
+          <button
+            onClick={handleBack}
+            className={`p-0.5 rounded-xl bg-linear-to-b from-white to-stone-200/40 shadow-card active:shadow-m active:scale-[0.995] cursor-pointer`}
+          >
+            <div className="bg-linear-to-b from-stone-200/40 to-white/80 rounded-[10px] py-1 px-2 flex gap-0.5 items-center">
+              <IconChevronLeft className="size-4 text-foreground/90" />
+              <span className={`font-normal text-sm text-foreground/80`}>
+                Back
+              </span>
+            </div>
+          </button>
         </div>
       </div>
 
-      <div className="max-w-2xl mx-auto px-6 py-12">
+      <div className="mx-auto max-w-4xl px-6 py-10 sm:px-8">
         <div className="mb-10">
+          <div className="mb-4 flex flex-wrap">
+            <StatusBadge status={data.poll.status} />
+          </div>
           <h1 className="text-2xl font-semibold tracking-tight text-foreground mb-2">
             {data.poll.title}
           </h1>
@@ -160,132 +118,27 @@ export default function PublishedResults() {
           </div>
         </div>
 
-        <div className="grid grid-cols-3 gap-3 mb-10">
-          <SummaryCard label="Total responses" value={data.poll.totalResponses} />
-          <SummaryCard label="Questions" value={data.questions.length} />
-          <SummaryCard
-            label="Required"
-            value={data.questions.filter((q) => q.mandatory).length}
+        <div className="mb-10">
+          <AnalyticsOverview
+            totalResponses={poll.totalResponses}
+            completionRate={poll.participationRate}
+            questionCount={questions.length}
           />
         </div>
 
         <div className="space-y-5">
-          <p className="text-sm font-medium text-foreground">Results by question</p>
-
-          {data.questions.map((q, i) => {
-            const topOption = [...q.options].sort((a, b) => b.count - a.count)[0];
-            const topPct =
-              q.totalAnswers === 0 || !topOption
-                ? 0
-                : Math.round((topOption.count / q.totalAnswers) * 100);
-
-            const barData = [
-              Object.fromEntries([
-                ["question", `Q${i + 1}`],
-                ...q.options.map((o) => [o.key, o.count]),
-              ]),
-            ];
-            const barConfig: ChartConfig = Object.fromEntries(
-              q.options.map((o, idx) => [
-                o.key,
-                {
-                  label: o.label,
-                  colors: {
-                    light: [OPTION_COLORS[idx]],
-                    dark: [OPTION_COLORS[idx]],
-                  },
-                },
-              ]),
-            );
-
-            return (
-              <div key={q.id} className="rounded-xl shadow-m ring-1 ring-black/5 bg-card p-6">
-                <div className="flex items-start justify-between gap-4 mb-5">
-                  <div>
-                    <p className="text-xs text-muted-foreground mb-1">
-                      Q{i + 1} · {q.mandatory ? "Required" : "Optional"}
-                    </p>
-                    <p className="text-sm font-medium text-foreground">{q.text}</p>
-                  </div>
-                  <div className="text-right shrink-0">
-                    <p className="text-base font-semibold text-foreground">{q.totalAnswers}</p>
-                    <p className="text-xs text-muted-foreground">responses</p>
-                  </div>
-                </div>
-
-                <div className="h-44 mb-5">
-                  <EvilBarChart
-                    className="h-full w-full"
-                    xDataKey="question"
-                    barVariant="default"
-                    data={barData}
-                    chartConfig={barConfig}
-                  />
-                </div>
-
-                <div className="space-y-2.5">
-                  {q.options.map((opt, idx) => {
-                    const pct =
-                      q.totalAnswers === 0 ? 0 : Math.round((opt.count / q.totalAnswers) * 100);
-                    const isWinner = opt.key === topOption?.key;
-                    return (
-                      <div key={opt.key}>
-                        <div className="flex items-center justify-between mb-1">
-                          <span
-                            className={`text-xs ${
-                              isWinner ? "text-foreground font-medium" : "text-muted-foreground"
-                            }`}
-                          >
-                            {opt.label}
-                            {isWinner && (
-                              <span className="ml-2 text-xs text-muted-foreground font-normal">
-                                winner
-                              </span>
-                            )}
-                          </span>
-                          <span className="text-xs text-muted-foreground">
-                            {opt.count} · {pct}%
-                          </span>
-                        </div>
-                        <div className="h-1.5 rounded-full bg-border overflow-hidden">
-                          <div
-                            className="h-full rounded-full"
-                            style={{ width: `${pct}%`, background: OPTION_COLORS[idx] }}
-                          />
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-
-                {topOption && (
-                  <div className="mt-5 pt-4 border-t border-border flex items-center gap-2">
-                    <IconChartBar size={13} className="text-muted-foreground" />
-                    <p className="text-xs text-muted-foreground">
-                      <span className="text-foreground font-medium">{topOption.label}</span>{" "}
-                      won with {topPct}% of votes
-                    </p>
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
-
-        <div className="mt-5 rounded-xl shadow-m ring-1 ring-black/5 bg-card p-6">
-          <p className="text-sm font-medium text-foreground mb-1">Overall distribution</p>
-          <p className="text-xs text-muted-foreground mb-4">
-            How responses were spread across questions
+          <p className="text-sm font-medium text-foreground">
+            Results by question
           </p>
-          <div className="h-52">
-            <EvilPieChart
-              isClickable
-              className="h-full w-full"
-              data={pieData}
-              dataKey="responses"
-              nameKey="question"
-              chartConfig={pieConfig}
-            />
+          <div className="flex flex-col gap-4">
+            {questions.map((question: AnalyticsQuestion, index: number) => (
+              <QuestionResult
+                key={question.id}
+                question={question}
+                index={index}
+                totalResponses={poll.totalResponses}
+              />
+            ))}
           </div>
         </div>
 
@@ -296,15 +149,6 @@ export default function PublishedResults() {
           </Link>
         </p>
       </div>
-    </div>
-  );
-}
-
-function SummaryCard({ label, value }: { label: string; value: string | number }) {
-  return (
-    <div className="rounded-xl shadow-m ring-1 ring-black/5 bg-card px-4 py-3 text-center">
-      <p className="text-xl font-semibold tracking-tight text-foreground">{value}</p>
-      <p className="text-xs text-muted-foreground mt-0.5">{label}</p>
     </div>
   );
 }

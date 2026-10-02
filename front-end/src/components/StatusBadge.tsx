@@ -14,7 +14,7 @@ export default function StatusBadge({ status }: { status: PollStatus }) {
   }[] = [
     {
       name: "active",
-      className: "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200",
+      className: "bg-emerald-50 text-emerald-700",
       Icon: IconCircleCheck,
     },
     {
@@ -24,12 +24,12 @@ export default function StatusBadge({ status }: { status: PollStatus }) {
     },
     {
       name: "published",
-      className: "bg-neutral-100 text-neutral-600 ring-1 ring-neutral-200",
+      className: "bg-emerald-100 text-emerald-700",
       Icon: IconBrandTelegram,
     },
     {
       name: "draft",
-      className: "bg-neutral-100 text-neutral-500 ring-1 ring-neutral-200",
+      className: "bg-neutral-100 text-neutral-500",
       Icon: IconPencil,
     },
   ];
