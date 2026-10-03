@@ -11,11 +11,21 @@ import { AnalyticsOverview } from "./analytics/AnalyticsOverview";
 import { useGetPublicPoll } from "@/hooks/index";
 import { QuestionResult } from "./analytics/QuestionResult";
 import type {AnalyticsQuestion} from '@/types/index';
+import { useAuthStore } from "@/store/auth.store";
 
 export default function PublishedResults() {
   const { shareId } = useParams();
   const { data, isLoading, isError } = useGetPublicPoll(shareId);
   const navigate = useNavigate();
+  const user = useAuthStore((s) => s.user);
+
+  const handleBack = () => {
+    if (window.history.state && typeof window.history.state.idx === "number" && window.history.state.idx > 0) {
+      navigate(-1);
+    } else {
+      navigate(user ? "/dashboard" : "/");
+    }
+  };
 
   if (isLoading) {
     return (
@@ -24,9 +34,8 @@ export default function PublishedResults() {
       </div>
     );
   }
-  const { poll, questions } = data;
  
-  if (isError || !data) {
+  if (isError || !data || !data.poll) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center px-6 font-sans">
         <div className="text-center max-w-sm">
@@ -37,19 +46,20 @@ export default function PublishedResults() {
             Results not available
           </h1>
           <p className="text-sm text-muted-foreground leading-relaxed mb-8">
-            {isError ||
-              "This poll's results are not yet published or don't exist."}
+            This poll's results are not yet published or don't exist.
           </p>
-          <Link
-            to="/"
-            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+          <button
+            onClick={handleBack}
+            className="text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
           >
             Back to Pollinkr
-          </Link>
+          </button>
         </div>
       </div>
     );
   }
+
+  const { poll, questions } = data;
 
   const publishedDate = poll.publishedAt
     ? new Date(poll.publishedAt).toLocaleDateString("en-US", {
@@ -58,10 +68,6 @@ export default function PublishedResults() {
         day: "numeric",
       })
     : "recently";
-
-  const handleBack = () => {
-    navigate('/dashboard');
-  };
 
   return (
     <div className="min-h-screen bg-background font-sans">

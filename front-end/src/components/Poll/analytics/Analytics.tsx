@@ -15,7 +15,6 @@ import { AnalyticsOverview } from "./AnalyticsOverview";
 import { QuestionResult } from "./QuestionResult";
 import { getTimeLeft } from "./analytics.utils";
 import DraftView from "./DraftView";
-import PublishedView from "./PublishView";
 import StatusBadge from "@/components/StatusBadge";
 import Button from "@/components/Button";
 
@@ -129,10 +128,6 @@ export default function Analytics({ pollId }: { pollId?: string | null }) {
     return <DraftView poll={analyticsData.poll} />;
   }
 
-  if (analyticsData.poll.status === "published") {
-    navigate(`/p/${analyticsData.poll.shareId}/results`);
-  }
-
   const handlePublishResults = async () => {
     try {
       const result = await publishMutation.mutateAsync();
@@ -231,6 +226,31 @@ export default function Analytics({ pollId }: { pollId?: string | null }) {
                     ? "Publishing..."
                     : "Publish results"}
               </Button>
+            )}
+
+            {poll.status === "published" && (
+              <>
+                <Button
+                  type="button"
+                  onClick={() => {
+                    void navigator.clipboard.writeText(
+                      `${window.location.origin}/p/${poll.shareId}/results`,
+                    );
+                    toast.success("Results link copied");
+                  }}
+                  childClassName="flex items-center gap-2 text-foreground/90"
+                >
+                  <IconShare2 size={12} />
+                  Share results
+                </Button>
+                <Button
+                  type="button"
+                  onClick={() => navigate(`/p/${poll.shareId}/results`)}
+                  childClassName="flex items-center gap-2 text-foreground/90"
+                >
+                  View public results
+                </Button>
+              </>
             )}
           </div>
         </header>

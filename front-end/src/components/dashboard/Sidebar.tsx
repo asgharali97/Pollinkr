@@ -51,7 +51,7 @@ function Sidebar() {
   return (
     <aside className="fixed left-0 top-0 flex h-full w-60 flex-col border-r border-border px-4 py-6">
       <Link
-        to="/"
+        to="/dashboard"
         className="mb-8 block px-2 text-sm font-semibold tracking-tight text-foreground"
       >
         Pollinkr

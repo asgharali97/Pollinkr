@@ -6,6 +6,7 @@ import {
   RouterProvider,
   Navigate,
   Outlet,
+  useSearchParams,
 } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import App from "@/App";
@@ -36,7 +37,12 @@ export function ProtectedRoute() {
 
 function GuestRoute() {
   const user = useAuthStore((s) => s.user);
-  if (user) return <Navigate to="/dashboard" replace />;
+  const [searchParams] = useSearchParams();
+  const returnTo = searchParams.get("returnTo");
+
+  if (user) {
+    return <Navigate to={returnTo ? decodeURIComponent(returnTo) : "/dashboard"} replace />;
+  }
   return <Outlet />;
 }
 
@@ -45,12 +51,11 @@ const router = createBrowserRouter([
     path: "/",
     element: <App />,
     children: [
-      { index: true, element: <Landing /> },
-
       // Guest only
       {
         element: <GuestRoute />,
         children: [
+          { index: true, element: <Landing /> },
           { path: "login", element: <Login /> },
           { path: "signup", element: <Signup /> },
         ],
