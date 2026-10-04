@@ -11,16 +11,26 @@ import {
   logoutSession,
   refreshSession,
   registerUser,
+  resendVerificationEmail,
+  verifyUserEmail,
 } from "./auth.service.js";
-import type { LoginDto, RegisterDto } from "./auth.dto.js";
+import type {
+  LoginDto,
+  RegisterDto,
+  ResendVerificationDto,
+  VerifyEmailDto,
+} from "./auth.dto.js";
 
 export async function register(req: Request, res: Response) {
   const result = await registerUser(req.body as RegisterDto);
-  setAuthCookies(res, result);
 
-  return ApiResponse.created(res, "Account created successfully", {
-    user: result.user,
-  });
+  return ApiResponse.created(
+    res,
+    "Account created successfully. Please check your email to verify your account.",
+    {
+      user: result,
+    },
+  );
 }
 
 export async function login(req: Request, res: Response) {
@@ -30,6 +40,21 @@ export async function login(req: Request, res: Response) {
   return ApiResponse.ok(res, "Logged in successfully", {
     user: result.user,
   });
+}
+
+export async function verifyEmail(req: Request, res: Response) {
+  const result = await verifyUserEmail(req.body as VerifyEmailDto);
+  setAuthCookies(res, result);
+
+  return ApiResponse.ok(res, result.message, {
+    user: result.user,
+  });
+}
+
+export async function resendVerification(req: Request, res: Response) {
+  const result = await resendVerificationEmail(req.body as ResendVerificationDto);
+
+  return ApiResponse.ok(res, result.message);
 }
 
 export async function refresh(req: Request, res: Response) {

@@ -8,6 +8,7 @@ declare global {
         _id: Types.ObjectId;
         name: string;
         email: string;
+        isEmailVerified: boolean;
       };
       validated?: {
         body?: unknown;

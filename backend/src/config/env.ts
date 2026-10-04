@@ -6,24 +6,33 @@ const envSchema = z.object({
     .enum(["development", "test", "production"])
     .default("development"),
   PORT: z.coerce.number().int().positive().default(5000),
-  CLIENT_ORIGIN: z.string().url().default("http://localhost:5173"),
-  MONGODB_URI: z
-    .string()
-    .min(1)
-    .default(
-      "mongodb://pollinkr:pollinkr_dev_password@localhost:27017/pollinkr?authSource=admin"
-    ),
-  JWT_ACCESS_SECRET: z.string().min(8).default("dev_fd5d1959-4674-4b23-b24b-4588e4a53065"),
-  JWT_ACCESS_EXPIRES_IN: z.string().min(1).default("15m"),
-  JWT_REFRESH_SECRET: z
-    .string()
-    .min(8)
-    .default("dev_d4850236-eaf3-4094-a43c-29a1c4d5a700"),
-  JWT_REFRESH_EXPIRES_IN: z.string().min(1).default("7d"),
-  FINGERPRINT_SECRET: z
-    .string()
-    .min(8)
-    .default("dev_bb345277-30fc-4811-8382-1f3277f4a97f"),
+  CLIENT_ORIGIN: z.string().url(),
+  MONGODB_URI: z.string().min(1),
+  JWT_ACCESS_SECRET: z.string().min(8),
+  JWT_ACCESS_EXPIRES_IN: z.string().min(1),
+  JWT_REFRESH_SECRET: z.string().min(8),
+  JWT_REFRESH_EXPIRES_IN: z.string().min(1),
+  FINGERPRINT_SECRET: z.string().min(8),
+  RESEND_API_KEY: z.string().default(""),
+  RESEND_FROM_EMAIL: z.string().default(""),
+}).superRefine((values, context) => {
+  if (values.NODE_ENV !== "production") return;
+
+  if (!values.RESEND_API_KEY) {
+    context.addIssue({
+      code: "custom",
+      path: ["RESEND_API_KEY"],
+      message: "RESEND_API_KEY is required in production",
+    });
+  }
+
+  if (!values.RESEND_FROM_EMAIL) {
+    context.addIssue({
+      code: "custom",
+      path: ["RESEND_FROM_EMAIL"],
+      message: "RESEND_FROM_EMAIL is required in production",
+    });
+  }
 });
 
 const parsedEnv = envSchema.safeParse(process.env);

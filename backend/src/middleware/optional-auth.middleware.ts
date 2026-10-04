@@ -12,13 +12,16 @@ export async function optionalAuth(req: Request, _res: Response, next: NextFunct
 
   try {
     const payload = verifyAccessToken(token);
-    const user = await User.findById(payload.userId).select("_id name email");
-    if (user) {
+    const user = await User.findById(payload.userId).select(
+       "_id name email isEmailVerified",
+    );
+    if (user && user.isEmailVerified) {
       req.user = {
         id: user._id.toString(),
         _id: user._id,
         name: user.name,
         email: user.email,
+        isEmailVerified: user.isEmailVerified,
       };
     }
   } catch {

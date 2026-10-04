@@ -13,10 +13,16 @@ export async function requireAuth(req: Request, _res: Response, next: NextFuncti
     }
 
     const payload = verifyAccessToken(token);
-    const user = await User.findById(payload.userId).select("_id name email");
+    const user = await User.findById(payload.userId).select(
+      "_id name email isEmailVerified",
+    );
 
     if (!user) {
       throw ApiError.unauthorized("User no longer exists");
+    }
+
+    if (!user.isEmailVerified) {
+      throw ApiError.forbidden("Please verify your email address to access this resource");
     }
 
     req.user = {
@@ -24,6 +30,7 @@ export async function requireAuth(req: Request, _res: Response, next: NextFuncti
       _id: user._id,
       name: user.name,
       email: user.email,
+      isEmailVerified: user.isEmailVerified,
     };
 
     next();

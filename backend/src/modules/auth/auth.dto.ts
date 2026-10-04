@@ -14,5 +14,15 @@ export const loginDto = z.object({
   password: z.string().min(1).max(128),
 });
 
+export const verifyEmailDto = z.object({
+  token: z.string().trim().min(20).max(256),
+});
+
+export const resendVerificationDto = z.object({
+  email: emailSchema,
+});
+
 export type RegisterDto = z.infer<typeof registerDto>;
 export type LoginDto = z.infer<typeof loginDto>;
+export type VerifyEmailDto = z.infer<typeof verifyEmailDto>;
+export type ResendVerificationDto = z.infer<typeof resendVerificationDto>;

@@ -5,6 +5,9 @@ export interface IUser {
   email: string;
   passwordHash: string;
   refreshTokenHash: string | null;
+  isEmailVerified: boolean;
+  emailVerificationTokenHash: string | null;
+  emailVerificationExpiresAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -39,6 +42,20 @@ const userSchema = new Schema<IUser, UserModel>(
       type: String,
       default: null,
       select: false,
+    },
+    isEmailVerified: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
+    emailVerificationTokenHash: {
+      type: String,
+      default: null,
+      select: false,
+    },
+    emailVerificationExpiresAt: {
+      type: Date,
+      default: null,
     },
   },
   {
