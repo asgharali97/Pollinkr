@@ -10,12 +10,11 @@ import StatusBadge from "../StatusBadge";
 import { AnalyticsOverview } from "./analytics/AnalyticsOverview";
 import { useGetPublicPoll } from "@/hooks/index";
 import { QuestionResult } from "./analytics/QuestionResult";
-import type {AnalyticsQuestion} from '@/types/index';
 import { useAuthStore } from "@/store/auth.store";
 
 export default function PublishedResults() {
   const { shareId } = useParams();
-  const { data, isLoading, isError } = useGetPublicPoll(shareId);
+  const { data: poll, isLoading, isError } = useGetPublicPoll(shareId);
   const navigate = useNavigate();
   const user = useAuthStore((s) => s.user);
 
@@ -35,7 +34,7 @@ export default function PublishedResults() {
     );
   }
  
-  if (isError || !data || !data.poll) {
+  if (isError || !poll) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center px-6 font-sans">
         <div className="text-center max-w-sm">
@@ -59,7 +58,7 @@ export default function PublishedResults() {
     );
   }
 
-  const { poll, questions } = data;
+  const { questions } = poll;
 
   const publishedDate = poll.publishedAt
     ? new Date(poll.publishedAt).toLocaleDateString("en-US", {
@@ -96,26 +95,26 @@ export default function PublishedResults() {
       <div className="mx-auto max-w-4xl px-6 py-10 sm:px-8">
         <div className="mb-10">
           <div className="mb-4 flex flex-wrap">
-            <StatusBadge status={data.poll.status} />
+            <StatusBadge status={poll.status} />
           </div>
           <h1 className="text-2xl font-semibold tracking-tight text-foreground mb-2">
-            {data.poll.title}
+            {poll.title}
           </h1>
-          {data.poll.description && (
+          {poll.description && (
             <p className="text-sm text-muted-foreground leading-relaxed mb-5">
-              {data.poll.description}
+              {poll.description}
             </p>
           )}
           <div className="flex items-center gap-5">
             <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
               <IconUsers size={12} />
-              {data.poll.totalResponses} responses
+              {poll.totalResponses} responses
             </span>
             <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
               <IconClock size={12} />
               Published {publishedDate}
             </span>
-            {data.poll.anonymous && (
+            {poll.anonymous && (
               <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
                 <IconLock size={12} />
                 Anonymous
@@ -137,10 +136,11 @@ export default function PublishedResults() {
             Results by question
           </p>
           <div className="flex flex-col gap-4">
-            {questions.map((question: AnalyticsQuestion, index: number) => (
+            {questions.map((question, index) => (
               <QuestionResult
-                key={question.id}
-                question={question}
+              key={question.id}
+              // @ts-expect-error TODO fix
+              question={question}
                 index={index}
                 totalResponses={poll.totalResponses}
               />

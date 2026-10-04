@@ -4,6 +4,8 @@ export {
   useLogout,
   useRefreshToken,
   useMe,
+  useVerifyEmail,
+  useResendVerification,
 } from "./hooks-auth";
 export {
   useListPolls,

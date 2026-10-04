@@ -39,23 +39,36 @@ export type PublicPoll = {
 };
 
 export type PublicPollResponse = {
-  poll: {
-    id: string;
-    shareId: string;
-    anonymous: boolean;
-    creatorId: string;
-    description?: string;
-    expiresAt?: string;
-    participationRate: number;
-    publishedAt: string;
-    questionCount: number;
-    responseMode: string;
-    status: PollStatus;
-    submittedAt: string[];
-    title: string;
-    totalResponses: number;
-  };
-  questions: AnalyticsQuestion[];
+  id: string;
+  shareId: string;
+  anonymous: boolean;
+  creatorId: string;
+  description?: string;
+  expiresAt?: string;
+  participationRate: number;
+  publishedAt: string;
+  questionCount: number;
+  responseMode: string;
+  status: PollStatus;
+  submittedAt: string[];
+  title: string;
+  totalResponses: number;
+  questions: AnalyticsQuestionPublic[];
+};
+
+export type AnalyticsQuestionPublic = {
+  id: string;
+  text: string;
+  mandatory: boolean;
+  totalAnswers: number;
+  options: AnalyticsOptionPublic[];
+};
+
+export type AnalyticsOptionPublic = {
+  id: string;
+  key: string;
+  text: string;
+  count: number;
 };
 
 export type AnalyticsOption = {

@@ -13,6 +13,7 @@ import App from "@/App";
 import Landing from "@/pages/Landing";
 import Login from "@/pages/Login";
 import Signup from "@/pages/Signup";
+import VerifyEmail from "@/pages/VerifyEmail";
 import Dashboard from "@/pages/Dashboard";
 import CreatePoll from "@/pages/CreatePoll";
 import PollResponse from "@/pages/PollResponse";
@@ -79,6 +80,7 @@ const router = createBrowserRouter([
       // Public
       { path: "p/:shareId", element: <PollResponse /> },
       { path: "p/:shareId/results", element: <PublishedResults /> },
+      { path: "verify-email", element: <VerifyEmail /> },
 
       { path: "*", element: <NotFound /> },
     ],

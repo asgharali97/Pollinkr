@@ -7,7 +7,7 @@ import { useGetPublicPoll, useSubmitResponse } from "@/hooks/index";
 import { ExpiryBadge } from "./ExpiryBadge";
 import { StateCard } from "./StateCard";
 import { AuthLoginDialog } from "../AuthLoginDialog";
-import Button from '@/components/Button'
+import Button from "@/components/Button";
 type Answers = Record<string, string>;
 type PageState = "form" | "submitted";
 
@@ -43,6 +43,8 @@ export default function PollResponse() {
       />
     );
   }
+
+  const { questions } = pollData;
 
   if (pollData.status === "draft") {
     return (
@@ -115,7 +117,6 @@ export default function PollResponse() {
   }
 
   if (pageState === "submitted") {
-    console.log(pageState)
     return (
       <StateCard
         state="submitted"
@@ -127,7 +128,7 @@ export default function PollResponse() {
     );
   }
 
-  const unansweredMandatory = pollData.questions
+  const unansweredMandatory = questions
     .filter((q) => q.mandatory && !answers[q.id])
     .map((q) => q.id);
 
@@ -173,7 +174,7 @@ export default function PollResponse() {
   };
 
   const answeredCount = Object.keys(answers).length;
-  const totalCount = pollData.questions.length;
+  const totalCount = questions.length;
   const progress = Math.round((answeredCount / totalCount) * 100);
 
   return (
@@ -229,7 +230,7 @@ export default function PollResponse() {
         </div>
 
         <div className="space-y-5">
-          {pollData.questions.map((q, i) => {
+          {questions.map((q, i) => {
             // const isUnanswered = unansweredMandatory.includes(q.id);
             return (
               <div
@@ -238,61 +239,66 @@ export default function PollResponse() {
                 className={`rounded-xl p-1 shadow-m`}
               >
                 <div className="p-4 rounded-lg bg-card shadow-card">
-                <div className="flex items-start justify-between gap-3 mb-4">
-                  <p className="text-sm font-medium text-foreground/90">
-                    <span className="text-muted-foreground mr-2">{i + 1}.</span>
-                    {q.text}
-                  </p>
-                  {!q.mandatory && (
-                    <span className="text-xs text-muted-foreground shrink-0 mt-0.5">
-                      Optional
-                    </span>
-                  )}
-                </div>
+                  <div className="flex items-start justify-between gap-3 mb-4">
+                    <p className="text-sm font-medium text-foreground/90">
+                      <span className="text-muted-foreground mr-2">
+                        {i + 1}.
+                      </span>
+                      {q.text}
+                    </p>
+                    {!q.mandatory && (
+                      <span className="text-xs text-muted-foreground shrink-0 mt-0.5">
+                        Optional
+                      </span>
+                    )}
+                  </div>
 
-                <div className="space-y-2">
-                  {q.options.map((opt) => {
-                    const selected = answers[q.id] === opt.id;
-                    return (
-                      <button
-                        key={opt.id}
-                        type="button"
-                        onClick={() => {
-                          setAnswers((prev) => ({ ...prev, [q.id]: opt.id }));
-                          setValidationError(null);
-                        }}
-                        className={`w-full text-left px-3 py-2 rounded-xl shadow-card shadow-black/5 ring-1 ring-black/5 text-sm transition-all cursor-pointer ${
-                          selected
-                            ? ""
-                            : "bg-accent/40 text-foreground hover:bg-accent/80  hover:shadow-m hover:ring-black/10"
-                        }`}
-                      >
-                        <span className="flex items-center gap-3">
-                          <span
-                            className={`w-4 h-4 rounded-sm shadow-card ring-1 ring-primary-light-2 flex-shrink-0 flex items-center justify-center transition-colors ${
-                              selected
-                                ? "bg-primary-light-2 "
-                                : "border-border hover:bg-primary-light-1/50 "
-                            }`}
-                          >
-                            {selected && (
-                              <IconCheck size={13} className="text-background"/>
-                            )}
+                  <div className="space-y-2">
+                    {q.options.map((opt) => {
+                      const selected = answers[q.id] === opt.id;
+                      return (
+                        <button
+                          key={opt.id}
+                          type="button"
+                          onClick={() => {
+                            setAnswers((prev) => ({ ...prev, [q.id]: opt.id }));
+                            setValidationError(null);
+                          }}
+                          className={`w-full text-left px-3 py-2 rounded-xl shadow-card shadow-black/5 ring-1 ring-black/5 text-sm transition-all cursor-pointer ${
+                            selected
+                              ? ""
+                              : "bg-accent/40 text-foreground hover:bg-accent/80  hover:shadow-m hover:ring-black/10"
+                          }`}
+                        >
+                          <span className="flex items-center gap-3">
+                            <span
+                              className={`w-4 h-4 rounded-sm shadow-card ring-1 ring-primary-light-2 flex-shrink-0 flex items-center justify-center transition-colors ${
+                                selected
+                                  ? "bg-primary-light-2 "
+                                  : "border-border hover:bg-primary-light-1/50 "
+                              }`}
+                            >
+                              {selected && (
+                                <IconCheck
+                                  size={13}
+                                  className="text-background"
+                                />
+                              )}
+                            </span>
+                            {opt.text}
                           </span>
-                          {opt.text}
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
+                        </button>
+                      );
+                    })}
+                  </div>
 
-                {/* {isUnanswered && (
+                  {/* {isUnanswered && (
                   <p className="flex items-center gap-1.5 text-xs text-red-500 mt-3">
                     <IconAlertCircle size={12} />
                     This question is required
                   </p>
                 )} */}
-              </div>
+                </div>
               </div>
             );
           })}
@@ -324,9 +330,7 @@ export default function PollResponse() {
             onClick={handleSubmit}
             disabled={submitting || submitMutation.isPending}
             className={`${
-              submitting || submitMutation.isPending
-                ? "cursor-not-allowed"
-                : ""
+              submitting || submitMutation.isPending ? "cursor-not-allowed" : ""
             }`}
           >
             {submitting || submitMutation.isPending

@@ -18,19 +18,43 @@ interface AuthResponse {
     id: string;
     name: string;
     email: string;
+    isEmailVerified: boolean;
   };
 }
 
-export const useRegister = () => {
-  const setAuth = useAuthStore((s) => s.setAuth);
+function logAuthFailure(action: string, error: unknown) {
+  const apiError = error as {
+    message?: string;
+    response?: { status?: number; data?: { message?: string } };
+  };
 
+  console.warn(`[auth] ${action} failed`, {
+    status: apiError.response?.status,
+    message: apiError.response?.data?.message || apiError.message,
+  });
+}
+
+interface RegisterResponse {
+  user?: {
+    id: string;
+    name: string;
+    email: string;
+    isEmailVerified?: boolean;
+  };
+  email?: string;
+}
+
+export const useRegister = () => {
   return useMutation({
     mutationFn: async (payload: RegisterPayload) => {
-      const res = await api.post<ApiEnvelope<AuthResponse>>("/auth/register", payload);
-      return res.data.data;
-    },
-    onSuccess: (data) => {
-      setAuth(data.user, "cookie-session");
+      try {
+        const res = await api.post<ApiEnvelope<RegisterResponse>>("/auth/register", payload);
+        console.info("[auth] registration request succeeded", { status: res.status });
+        return res.data.data;
+      } catch (error) {
+        logAuthFailure("registration request", error);
+        throw error;
+      }
     },
   });
 };
@@ -40,11 +64,60 @@ export const useLogin = () => {
 
   return useMutation({
     mutationFn: async (payload: LoginPayload) => {
-      const res = await api.post<ApiEnvelope<AuthResponse>>("/auth/login", payload);
-      return res.data.data;
+      try {
+        const res = await api.post<ApiEnvelope<AuthResponse>>("/auth/login", payload);
+        console.info("[auth] login request succeeded", { status: res.status });
+        return res.data.data;
+      } catch (error) {
+        logAuthFailure("login request", error);
+        throw error;
+      }
     },
     onSuccess: (data) => {
       setAuth(data.user, "cookie-session");
+    },
+  });
+};
+
+export const useVerifyEmail = () => {
+  const setAuth = useAuthStore((s) => s.setAuth);
+
+  return useMutation({
+    mutationFn: async (payload: { token: string }) => {
+      try {
+        const res = await api.post<ApiEnvelope<AuthResponse>>("/auth/verify-email", payload);
+        console.info("[auth] email verification request succeeded", {
+          status: res.status,
+          message: res.data.message,
+        });
+        return res.data;
+      } catch (error) {
+        logAuthFailure("email verification request", error);
+        throw error;
+      }
+    },
+    onSuccess: (response) => {
+      if (response.data?.user) {
+        setAuth(response.data.user, "cookie-session");
+      }
+    },
+  });
+};
+
+export const useResendVerification = () => {
+  return useMutation({
+    mutationFn: async (payload: { email: string }) => {
+      try {
+        const res = await api.post<ApiEnvelope<null>>("/auth/resend-verification", payload);
+        console.info("[auth] resend verification request succeeded", {
+          status: res.status,
+          message: res.data.message,
+        });
+        return res.data;
+      } catch (error) {
+        logAuthFailure("resend verification request", error);
+        throw error;
+      }
     },
   });
 };
@@ -61,7 +134,6 @@ export const useLogout = () => {
     },
   });
 };
-
 
 export const useRefreshToken = () => {
   return useMutation({
