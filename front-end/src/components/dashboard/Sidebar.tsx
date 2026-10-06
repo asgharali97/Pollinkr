@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { IconChartBar, IconLayoutDashboard } from "@tabler/icons-react";
+import { IconChartBar, IconLayoutDashboard, IconLogout2 } from "@tabler/icons-react";
 import { useAuthStore } from "@/store/auth.store";
 import {
   Popover,
@@ -22,8 +22,8 @@ function SidebarLink({
   return (
     <Link
       to={to}
-      className={`flex items-center gap-2.5 rounded-lg px-2 py-2 text-sm transition-colors hover:bg-card hover:text-foreground/80 ${
-        active ? "bg-muted text-foreground hover:bg-muted" : ""
+      className={`flex items-center gap-2.5 rounded-lg px-2 py-1.5 text-sm transition-colors hover:bg-card hover:text-foreground/80 ${
+        active ? "bg-muted text-foreground hover:bg-muted shadow-card" : ""
       }`}
     >
       {icon}
@@ -57,7 +57,7 @@ function Sidebar() {
         Pollinkr
       </Link>
 
-      <nav className="flex flex-1 flex-col gap-1" aria-label="Main">
+      <nav className="flex flex-1 flex-col gap-1.5" aria-label="Main">
         <SidebarLink
           active={isDashboard}
           label="Dashboard"
@@ -72,14 +72,14 @@ function Sidebar() {
         />
       </nav>
 
-      <div className="-mx-4 mt-auto flex flex-col gap-3 border-t border-dashed border-border px-2 pt-6">
+      <div className="-mx-4 mt-auto flex flex-col gap-3 border-t border-border px-2 pt-4">
         <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
           <PopoverTrigger asChild>
             <button
               type="button"
-              className="flex cursor-pointer items-center gap-2.5 transition-opacity hover:opacity-80"
+              className="flex cursor-pointer items-center gap-2.5 transition-opacity hover:opacity-80 hover:bg-muted p-1 rounded-lg"
             >
-              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-muted text-xs font-semibold text-foreground">
+              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-muted shadow-card text-xs font-semibold text-foreground">
                 {user?.name.slice(0, 1)}
               </div>
               <div className="flex flex-1 flex-col items-start">
@@ -92,12 +92,13 @@ function Sidebar() {
               </div>
             </button>
           </PopoverTrigger>
-          <PopoverContent side="right" className="w-46 rounded-lg py-2">
+          <PopoverContent side="right" className="rounded-lg p-1 w-fit">
             <button
               type="button"
               onClick={handleSignout}
-              className="flex w-full cursor-pointer items-center gap-2 rounded px-3 py-1 text-sm text-muted-foreground transition-colors hover:text-red-400"
+              className="flex w-full cursor-pointer items-center gap-2 rounded-sm px-2 py-1 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-red-400"
             >
+              <IconLogout2 size={14} />
               Sign out
             </button>
           </PopoverContent>

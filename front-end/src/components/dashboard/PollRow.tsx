@@ -12,6 +12,7 @@ import {
   IconChartBar,
   IconShare2,
   IconDots,
+  IconBrandTelegram,
 } from "@tabler/icons-react";
 import { ActionBtn } from "./ActionBtn";
 import { MenuItem } from "./MenuItem";
@@ -152,19 +153,20 @@ export function PollRow({
         <div className="relative">
           <button
             onClick={() => setMenuOpen(!menuOpen)}
-            className="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+            className="px-2 py-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted hover:shadow-card transition-colors"
           >
             {poll.status !== "published" ? <IconDots size={15} /> : null}
           </button>
           {menuOpen && (
             <div
-              className="absolute right-0 top-full mt-1 w-40 rounded-lg border border-border bg-card shadow-lg z-10 py-1"
+              className="absolute right-0 top-full mt-1 w-40 rounded-lg border border-border bg-card shadow-lg z-10 p-0.5"
               onMouseLeave={() => setMenuOpen(false)}
             >
               {poll.status === "expired" && (
                 <MenuItem
                   label="Publish results"
                   onClick={() => setMenuOpen(false)}
+                  icon={<IconBrandTelegram size={13} />}
                 />
               )}
               {deleteAction && (

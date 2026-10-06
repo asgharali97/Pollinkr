@@ -31,6 +31,7 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const analyticsId = searchParams.get("pollId");
 
+
   useEffect(() => {
     const fetchPolls = async () => {
       try {

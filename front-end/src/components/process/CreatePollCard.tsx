@@ -33,7 +33,7 @@ const CreatePollCard = () => {
         WebkitMaskComposite: "source-in",
       }}
     >
-      <div className="bg-background shadow-black/5 ring-1 shadow-m ring-black/5 rounded-[9px] py-2 px-3 mb-1 flex flex-col">
+      <div className="bg-background rounded-[9px] py-2 px-3 mb-1 flex flex-col">
         <div className="mb-1">
           <p className="text-sm font-medium text-foreground truncate  py-2 bg-  border-neutral-100 rounded-lg -m">
             {POLL_DATA.title}

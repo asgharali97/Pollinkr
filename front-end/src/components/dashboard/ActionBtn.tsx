@@ -12,7 +12,7 @@ export function ActionBtn({
   onClick?: () => void;
 }) {
   const cls =
-    "flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs text-muted-foreground hover:text-foreground hover:bg-muted transition-colors font-medium";
+    "flex items-center gap-2.5 px-2 py-1 rounded-md text-xs text-muted-foreground hover:text-foreground hover:bg-muted hover:shadow-card transition-colors font-medium";
 
   if (to) {
     return (
