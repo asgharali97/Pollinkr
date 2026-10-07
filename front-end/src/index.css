@@ -49,6 +49,7 @@
   --color-primary-light-3: var(--primary-light-3);
 }
 :root {
+  color-scheme: light;
   --background: oklch(99.107% 0.00011 271.152);
   --foreground: oklch(0.145 0 0);
   --card: oklch(100% 0.00011 271.152);
@@ -100,6 +101,7 @@
 }
 
 .dark {
+  color-scheme: dark;
   --background: oklch(0.145 0 0);
 
   --foreground: oklch(98.511% 0.00011 271.152);

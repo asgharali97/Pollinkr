@@ -33,11 +33,11 @@ const StatusBar = ({
   const activeTiles = Math.round((percentage / 100) * responsiveTileCount);
 
   return (
-    <div className={`flex min-w-2 overflow-hidden items-center gap-1.5 ${className}`}>
+    <div className={`flex w-full min-w-0 items-center gap-1 sm:gap-1.5 ${className}`}>
       {Array.from({ length: responsiveTileCount }).map((_, index) => (
         <div
           key={index}
-          className={`h-8 w-2 rounded-[3px] ${
+          className={`h-8 min-w-0 flex-1 rounded-[3px] ${
             index < activeTiles ? tileClassName : mutedTileClassName
           }`}
         />
@@ -63,7 +63,7 @@ const RESULTS = [
 
 const ReadResultsCard = () => {
   return (
-    <div className="h-full w-full select-none min-h-0">
+    <div className="h-full min-h-0 w-full min-w-0 select-none">
       <div className="flex h-full flex-col">
         <div className="flex items-center justify-between">
           <div>
@@ -84,8 +84,8 @@ const ReadResultsCard = () => {
           </div>
         </div>
 
-        <div className="mt-3 flex min-w-0 items-center gap-6">
-          <h4 className="shrink-0 text-lg font-medium text-foreground/80 tracking-tight">
+        <div className="mt-3 flex flex-col sm:flex-row min-w-0 gap-4 sm:items-center">
+          <h4 className="text-lg font-medium tracking-tight text-foreground/80 sm:shrink-0 sm:my-0 my-2">
             69% Chose Option 4
           </h4>
 
@@ -93,18 +93,19 @@ const ReadResultsCard = () => {
             percentage={69}
             tileCount={40}
             lgTileCount={47}
+            className="sm:min-w-0 sm:flex-1"
             tileClassName="bg-primary-light-2 shadow-chart shadow-black/5 ring-1 ring-primary-light-2"
           />
         </div>
 
-        <div className="mt-6 grid grid-cols-3 gap-4">
+        <div className="mt-6 hidden sm:flex flex-wrap justify-between gap-y-3 sm:gap-y-4">
           {RESULTS.map((result, index) => (
             <div
               key={result.label}
-              className="rounded-xl border border-border bg-background/50 px-4 py-2"
+              className="w-[calc(50%-0.375rem)] min-w-0 rounded-xl border border-border bg-background/50 px-3 py-2 sm:w-[calc(33.333%-0.667rem)] sm:px-4"
             >
               <div className="flex min-w-0 items-center gap-2">
-                <p className="shrink-0 text-xs font-medium text-foreground/80">
+                <p className="min-w-0 text-[11px] font-medium leading-tight text-foreground/80 sm:text-xs">
                   {result.percentage}% chose {result.label}
                 </p>
               </div>

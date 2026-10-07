@@ -21,6 +21,14 @@ import PublishedResults from "@/pages/PublishedResults";
 import NotFound from "@/pages/NotFound";
 import { useAuthStore } from "@/store/auth.store";
 
+const colorSchemePreference = window.matchMedia("(prefers-color-scheme: light)");
+const syncColorScheme = () => {
+  document.documentElement.classList.toggle("dark", colorSchemePreference.matches);
+};
+
+syncColorScheme();
+colorSchemePreference.addEventListener("change", syncColorScheme);
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {

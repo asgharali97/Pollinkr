@@ -21,7 +21,7 @@ export default function VerifyEmail() {
   const [message, setMessage] = useState(
     token
       ? "Verifying your email..."
-      : "Verification token is missing. Request a new verification email."
+      : "Verification token is missing. Request a new verification email.",
   );
   const [email, setEmail] = useState("");
   const [cooldown, setCooldown] = useState(0);
@@ -53,8 +53,7 @@ export default function VerifyEmail() {
         }
         setState("error");
         setMessage(
-          errorMessage ||
-            "This verification link has expired or is invalid"
+          errorMessage || "This verification link has expired or is invalid",
         );
       });
   }, [token, verifyMutation.mutateAsync]);
@@ -89,7 +88,9 @@ export default function VerifyEmail() {
   if (state === "loading") {
     return (
       <VerificationCard
-        icon={<IconLoader2 size={24} className="animate-spin text-foreground/80" />}
+        icon={
+          <IconLoader2 size={24} className="animate-spin text-foreground/80" />
+        }
         title="Verifying your email..."
         description="Please wait while we confirm your account."
       />
@@ -158,24 +159,26 @@ function VerificationCard({
   action?: ReactNode;
 }) {
   return (
-    <div className="w-full max-w-sm p-2 rounded-[20px] shadow-s shadow-black/5 ring-1 ring-black/5 bg-background">
-      <div className="w-full h-full p-6 rounded-xl shadow-m shadow-black/10 ring-1 ring-black/10 bg-card text-center">
-        <Link
-          to="/"
-          className="text-sm font-semibold tracking-tight text-foreground block mb-6 leading-none text-left"
-        >
-          Pollinkr
-        </Link>
-        <div className="w-14 h-14 rounded-2xl bg-primary-light-2/70 shadow-chart ring-1 ring-primary-light-2 flex items-center justify-center mx-auto mb-4">
-          {icon || <IconMail size={24} className="text-foreground/80" />}
+    <div className="w-full px-4 flex justify-center items-center">
+      <div className="w-full max-w-sm p-2 rounded-[20px] shadow-s shadow-black/5 ring-1 ring-black/5 bg-background">
+        <div className="w-full h-full p-6 rounded-xl shadow-m shadow-black/10 ring-1 ring-black/10 bg-card text-center">
+          <Link
+            to="/"
+            className="text-sm font-semibold tracking-tight text-foreground block mb-6 leading-none text-left"
+          >
+            Pollinkr
+          </Link>
+          <div className="w-14 h-14 rounded-2xl bg-primary-light-2/70 shadow-chart ring-1 ring-primary-light-2 flex items-center justify-center mx-auto mb-4">
+            {icon || <IconMail size={24} className="text-foreground/80" />}
+          </div>
+          <h1 className="text-xl font-semibold tracking-tight text-foreground mb-2">
+            {title}
+          </h1>
+          <p className="text-sm text-foreground/70 leading-relaxed mb-5 max-w-sm mx-auto text-pretty">
+            {description}
+          </p>
+          {action}
         </div>
-        <h1 className="text-xl font-semibold tracking-tight text-foreground mb-2">
-          {title}
-        </h1>
-        <p className="text-sm text-foreground/70 leading-relaxed mb-5 max-w-sm mx-auto text-pretty">
-          {description}
-        </p>
-        {action}
       </div>
     </div>
   );
