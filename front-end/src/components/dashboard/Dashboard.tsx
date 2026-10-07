@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { io } from "socket.io-client";
 import Sidebar from "./Sidebar";
-import { IconPlus, IconSearch } from "@tabler/icons-react";
+import { IconMenu2, IconPlus, IconSearch } from "@tabler/icons-react";
 import { toast } from "sonner";
 import api from "@/lib/api";
 import { useAuthStore } from "@/store/auth.store";
@@ -28,6 +28,7 @@ export default function Dashboard() {
   const currentTab = searchParams.get("tab") || "polls";
   const [filter, setFilter] = useState<FilterTab>("all");
   const [search, setSearch] = useState("");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const navigate = useNavigate();
   const analyticsId = searchParams.get("pollId");
 
@@ -103,23 +104,34 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-background text-foreground font-sans">
       <div className="flex">
-        <Sidebar />
+        <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
-        <main className="flex-1 min-h-screen pl-60">
+        <main className="min-h-screen min-w-0 flex-1 md:pl-40 lg:pl-60">
+          <div className="px-4 pt-4 md:hidden">
+            <button
+              type="button"
+              aria-label="Open dashboard navigation"
+              aria-expanded={sidebarOpen}
+              onClick={() => setSidebarOpen(true)}
+              className="inline-flex size-11 items-center justify-center rounded-lg text-foreground hover:bg-muted"
+            >
+              <IconMenu2 size={20} aria-hidden="true" />
+            </button>
+          </div>
           {currentTab === "polls" && (
-            <div className="max-w-4xl mx-auto px-8 py-10">
-              <div className="flex items-start justify-between mb-10">
-                <div>
+            <div className="mx-auto w-full max-w-3xl px-4 py-6 sm:px-6 sm:py-8 lg:max-w-5xl lg:px-8 lg:py-10">
+              <div className="mb-8 flex items-start justify-between gap-3 sm:mb-10">
+                <div className="min-w-0">
                   <p className="text-xs text-muted-foreground mb-1 uppercase tracking-widest font-medium">
                     Dashboard
                   </p>
-                  <h1 className="text-2xl font-semibold tracking-tight">
+                  <h1 className="text-xl font-semibold tracking-tight sm:text-2xl">
                     Good morning, {user?.name?.split(" ")[0] || "there"}.
                   </h1>
                 </div>
                 <button
                   onClick={() => navigate("/polls/create")}
-                  className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-opacity hover:opacity-90"
+                  className="flex min-h-11 shrink-0 items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium transition-opacity hover:opacity-90 sm:px-4 sm:text-sm"
                   style={{
                     background: "hsl(var(--foreground))",
                     color: "hsl(var(--background))",
@@ -130,7 +142,7 @@ export default function Dashboard() {
                 </button>
               </div>
 
-              <div className="grid grid-cols-3 gap-4 mb-10">
+              <div className="mb-8 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:mb-10 lg:grid-cols-3 lg:gap-4">
                 {[
                   { label: "Total polls", value: counts.total },
                   { label: "Active now", value: counts.active },
@@ -138,7 +150,7 @@ export default function Dashboard() {
                 ].map((s) => (
                   <div
                     key={s.label}
-                    className="bg-card rounded-xl shadow-card sadow-black/5 ring-1 ring-black/5 py-4 px-5"
+                    className="min-w-0 rounded-xl bg-card px-4 py-4 shadow-card ring-1 ring-black/5 sm:px-5"
                   >
                     <p className="text-2xl font-semibold tracking-tight">
                       {s.value}
@@ -150,13 +162,13 @@ export default function Dashboard() {
                 ))}
               </div>
 
-              <div className="flex items-center justify-between mb-5 gap-4">
-                <div className="flex items-center gap-1 rounded-md p-0.5 bg-card shadow-card ring-1 ring-black/5">
+              <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+                <div className="flex max-w-full items-center gap-1 overflow-x-auto rounded-md bg-card p-0.5 shadow-card ring-1 ring-black/5">
                   {TABS.map((tab) => (
                     <button
                       key={tab.key}
                       onClick={() => setFilter(tab.key)}
-                      className={`px-3 py-1 rounded-sm text-xs font-medium transition-all text-muted-foreground hover:text-foreground/80 hover:bg-muted ${
+                      className={`shrink-0 rounded-sm px-3 py-1 text-xs font-medium text-muted-foreground transition-all hover:bg-muted hover:text-foreground/80 ${
                         filter === tab.key
                           ? "bg-accent text-foreground hover:bg-accent"
                           : ""
@@ -167,17 +179,17 @@ export default function Dashboard() {
                   ))}
                 </div>
 
-                <div className="relative">
+                <div className="relative w-full sm:w-48 sm:shrink-0">
                   <IconSearch
                     size={14}
-                    className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground"
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground/90"
                   />
                   <input
                     type="text"
                     placeholder="Search polls..."
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    className="pl-8 pr-3 py-1.5 text-xs rounded-lg bg-card text-foreground placeholder:text-muted-foreground/50 outline-none w-48 shadow-black/5 ring-1 ring-muted-foreground/40 active:ring-muted-foreground focus:ring-muted-foreground"
+                    className="w-full rounded-lg bg-card py-1.5 pl-8 pr-3 text-sm text-foreground outline-none ring-1 ring-muted-foreground/40 placeholder:text-muted-foreground/50 focus:ring-muted-foreground"
                   />
                 </div>
               </div>

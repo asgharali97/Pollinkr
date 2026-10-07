@@ -87,12 +87,12 @@ export function PollRow({
 
   return (
     <div
-      className="group flex items-center justify-between px-5 py-4 rounded-xl bg-card transition-all shadow-m hover:bg-background"
+      className="group flex min-w-0 flex-col gap-3 rounded-xl bg-card px-3 py-3 shadow-m transition-all hover:bg-background sm:flex-row sm:items-center sm:justify-between sm:px-4 sm:py-4"
       style={{
         animationDelay: `${index * 40}ms`,
       }}
     >
-      <div className="flex-1 min-w-0 mr-6">
+      <div className="min-w-0 flex-1 sm:mr-4">
         <div className="flex items-center gap-2.5 mb-1.5">
           <span
             className={`text-xs font-medium px-2 py-0.5 rounded-full ${status.className}`}
@@ -103,10 +103,10 @@ export function PollRow({
             <span className="text-xs text-muted-foreground/60">Anonymous</span>
           )}
         </div>
-        <p className="text-sm font-medium text-foreground truncate">
+        <p className="line-clamp-2 text-sm font-medium text-foreground">
           {poll.title}
         </p>
-        <div className="flex items-center gap-4 mt-1.5">
+        <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1">
           <span className="flex items-center gap-1 text-xs text-muted-foreground">
             <IconUsers size={11} />
             {poll.responseCount} responses
@@ -122,7 +122,7 @@ export function PollRow({
         </div>
       </div>
 
-      <div className="flex items-center gap-1 shrink-0">
+      <div className="flex max-w-full flex-wrap items-center justify-end gap-1 self-end sm:shrink-0 sm:self-center">
         {poll.status !== "draft" && (
           <ActionBtn
             icon={<IconChartBar size={14} />}
@@ -153,7 +153,8 @@ export function PollRow({
         <div className="relative">
           <button
             onClick={() => setMenuOpen(!menuOpen)}
-            className="px-2 py-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted hover:shadow-card transition-colors"
+            aria-label="More poll actions"
+            className="px-2 py-1 inline-flex items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground hover:shadow-card"
           >
             {poll.status !== "published" ? <IconDots size={15} /> : null}
           </button>
