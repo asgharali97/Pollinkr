@@ -20,6 +20,10 @@ import {
 import type { SubmitResponseDto } from "../response/response.dto.js";
 import type { RespondentContext } from "./poll.service.js";
 
+function getClientIp(req: Request) {
+  return req.get("cf-connecting-ip") ?? req.ip ?? null;
+}
+
 export async function create(req: Request, res: Response) {
   const poll = await createPoll(
     req.user!.id,
@@ -83,7 +87,10 @@ export async function submitResponse(req: Request, res: Response) {
   });
   const context: RespondentContext = {};
   if (req.user?.id) context.userId = req.user.id;
-  if (req.ip) context.ip = req.ip;
+
+  const ip = getClientIp(req);
+  if (ip) context.ip = ip;
+
   const userAgent = req.get("user-agent");
   if (userAgent) context.userAgent = userAgent;
 

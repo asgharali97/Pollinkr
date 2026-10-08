@@ -194,6 +194,12 @@ export async function submitPollResponse(
     throw ApiError.unauthorized("Login is required to respond to this poll");
   }
 
+  if (poll.responseMode === "anonymous" && !context.ip) {
+    throw ApiError.badRequest(
+      "Could not verify your network. Please try again.",
+    );
+  }
+
   validateAnswersBelongToPoll(poll, payload.answers);
 
   const respondentUser =
@@ -308,9 +314,7 @@ function buildRespondentFingerprint(
   pollId: string,
   context: RespondentContext,
 ) {
-  const ip = context.ip ?? "unknown-ip";
-  const userAgent = context.userAgent ?? "unknown-agent";
-  return hashValue(`${pollId}:${ip}:${userAgent}`);
+  return hashValue(`${pollId}:${context.ip}`);
 }
 
 function hashValue(value: string) {
