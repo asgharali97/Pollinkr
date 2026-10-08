@@ -21,14 +21,17 @@ import type { SubmitResponseDto } from "../response/response.dto.js";
 import type { RespondentContext } from "./poll.service.js";
 
 export async function create(req: Request, res: Response) {
-  const poll = await createPoll(req.user!.id, getValidatedBody<CreatePollDto>(req));
+  const poll = await createPoll(
+    req.user!.id,
+    getValidatedBody<CreatePollDto>(req),
+  );
   return ApiResponse.created(res, "Poll created successfully", poll);
 }
 
 export async function list(req: Request, res: Response) {
   const polls = await listCreatorPolls(
     req.user!.id,
-    getValidatedQuery<ListPollsQueryDto>(req)
+    getValidatedQuery<ListPollsQueryDto>(req),
   );
   return ApiResponse.ok(res, "Polls fetched successfully", { polls });
 }
@@ -42,7 +45,7 @@ export async function update(req: Request, res: Response) {
   const poll = await updatePoll(
     req.user!.id,
     getParam(req, "id"),
-    getValidatedBody<UpdatePollDto>(req)
+    getValidatedBody<UpdatePollDto>(req),
   );
   return ApiResponse.ok(res, "Poll updated successfully", { poll });
 }
@@ -73,6 +76,11 @@ export async function publicDetail(req: Request, res: Response) {
 }
 
 export async function submitResponse(req: Request, res: Response) {
+  console.log({
+    ip: req.ip,
+    xff: req.headers["x-forwarded-for"],
+    ua: req.get("user-agent"),
+  });
   const context: RespondentContext = {};
   if (req.user?.id) context.userId = req.user.id;
   if (req.ip) context.ip = req.ip;
@@ -82,14 +90,17 @@ export async function submitResponse(req: Request, res: Response) {
   const result = await submitPollResponse(
     getParam(req, "shareId"),
     getValidatedBody<SubmitResponseDto>(req),
-    context
+    context,
   );
 
   return ApiResponse.created(res, "Response submitted successfully", result);
 }
 
 function getParam(req: Request, name: string) {
-  const params = (req.validated?.params ?? req.params) as Record<string, unknown>;
+  const params = (req.validated?.params ?? req.params) as Record<
+    string,
+    unknown
+  >;
   const value = params[name];
   if (typeof value !== "string") {
     throw new Error(`Missing route param: ${name}`);
